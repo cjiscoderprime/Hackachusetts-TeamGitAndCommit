@@ -1,0 +1,15 @@
+SYNTHETIC — NOT REAL SCIENTIFIC OR REGULATORY EVIDENCE
+Document ID: SCI-SUM-001 | Revision: 2 | Page: 1
+Sponsor: AsterBio (fictional)
+Product: AB-101 (fictional investigational small-molecule candidate)
+Question of interest: Can a model flag the specified HepG2_assay_positive
+endpoint to prioritize additional laboratory hepatotoxicity testing?
+AI model for proposed use: HepaRisk v2.1.
+Context: Model outputs supplement confirmatory laboratory experiments;
+scientists make all follow-up decisions. No human dosing decision is based
+on the model alone; this evidence does not establish IND safety adequacy.
+Evaluation: TEST-01, HepG2_assay_positive, n=100, HepaRisk v2.1.
+Claim: Sensitivity on TEST-01 was 0.80.
+Claim: TEST-01 was a held-out, within-Lab-A evaluation, not an
+independent external-laboratory validation.
+Evidence reference: validation_report.txt, Document VAL-001 Rev 2.

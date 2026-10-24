@@ -1,0 +1,14 @@
+SYNTHETIC — NOT REAL SCIENTIFIC OR REGULATORY EVIDENCE
+Document ID: MODEL-001 | Revision: 1 | Page: 1
+Product: AB-101 (fictional).
+Intended regulatory-use model identity: HepaRisk v2.0.
+Model family: binary toxicity-assay classifier.
+Input: synthetic assay-derived features for candidate compounds.
+Output: probability score for HepG2_assay_positive endpoint.
+Role: internal prioritization of additional laboratory experiments;
+confirmation and disposition decisions stay with scientists.
+Training set: Lab A dataset TRAIN-01.
+Historical training-set sensitivity: 0.99, measured on TRAIN-01.
+The training set is not the final held-out test dataset TEST-01.
+No model risk assessment is documented in this model card.
+No modeling limitations or potential biases are documented here.

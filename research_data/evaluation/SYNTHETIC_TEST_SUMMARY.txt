@@ -1,0 +1,23 @@
+{
+  "flawed": {
+    "known_defects": 8,
+    "rule_engine_claims": 26,
+    "true_positives": 8,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "citation_strings_valid": true
+  },
+  "corrected": {
+    "known_defects": 0,
+    "rule_engine_claims": 25,
+    "true_positives": 0,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": null,
+    "recall": null,
+    "citation_strings_valid": true
+  },
+  "scope_note": "Fixture-specific extraction + deterministic verification on two authored synthetic cases only. NOT performance of Gemini or general FDA documentation review."
+}

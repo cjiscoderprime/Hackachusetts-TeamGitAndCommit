@@ -1,0 +1,190 @@
+{
+  "flawed": {
+    "known_defects": 8,
+    "rule_engine_claims": 26,
+    "findings": [
+      {
+        "id": "REGU-001",
+        "rule_id": "R04",
+        "category": "metric_mismatch",
+        "severity": "high",
+        "title": "Conflicting sensitivity for the same evaluation",
+        "description": "Reported sensitivity values (0.9500, 0.8000) for model heparisk version v2.1, endpoint hepg2_assay_positive, dataset test-01, split test are inconsistent. Confusion-matrix calculation = 0.8000.",
+        "sources": [
+          {
+            "document": "scientific_summary.txt",
+            "page": 1,
+            "quote": "Claim: Sensitivity on TEST-01 was 0.95."
+          },
+          {
+            "document": "validation_report.txt",
+            "page": 1,
+            "quote": "Reported sensitivity: 0.80 on TEST-01 for HepaRisk v2.1."
+          },
+          {
+            "document": "validation_report.txt",
+            "page": 1,
+            "quote": "Counts: TP=32; FN=8; TN=54; FP=6."
+          }
+        ],
+        "recommendation": "Check the original dataset and calculation, then reconcile the reported metric.",
+        "requires_human_review": true,
+        "regulatory_conclusion": false
+      },
+      {
+        "id": "REGU-002",
+        "rule_id": "R03",
+        "category": "model_version_mismatch",
+        "severity": "high",
+        "title": "Conflicting intended-use model versions",
+        "description": "Documents identify heparisk as intended-use versions v2.0., v2.1..",
+        "sources": [
+          {
+            "document": "scientific_summary.txt",
+            "page": 1,
+            "quote": "AI model for proposed use: HepaRisk v2.1."
+          },
+          {
+            "document": "model_card.txt",
+            "page": 1,
+            "quote": "Intended regulatory-use model identity: HepaRisk v2.0."
+          }
+        ],
+        "recommendation": "Confirm and consistently identify the model version intended for this use.",
+        "requires_human_review": true,
+        "regulatory_conclusion": false
+      },
+      {
+        "id": "REGU-003",
+        "rule_id": "R06",
+        "category": "unsupported_claim",
+        "severity": "high",
+        "title": "External validation claim contradicts available study evidence",
+        "description": "For heparisk v2.1, independent external-laboratory validation is claimed but the supplied evidence explicitly describes within-laboratory testing.",
+        "sources": [
+          {
+            "document": "scientific_summary.txt",
+            "page": 1,
+            "quote": "Claim: HepaRisk v2.1 was validated at an independent external laboratory."
+          },
+          {
+            "document": "validation_report.txt",
+            "page": 1,
+            "quote": "separate batches. The test dataset is not an external-laboratory dataset."
+          }
+        ],
+        "recommendation": "Identify the actual validation institution or withdraw the unsupported assertion.",
+        "requires_human_review": true,
+        "regulatory_conclusion": false
+      },
+      {
+        "id": "REGU-004",
+        "rule_id": "R09",
+        "category": "missing_documentation",
+        "severity": "medium",
+        "title": "Performance acceptance criteria not documented",
+        "description": "No acceptance criteria documentation was located in the provided package during the bounded review. This does not prove it does not exist elsewhere.",
+        "sources": [
+          {
+            "document": "validation_report.txt",
+            "page": 1,
+            "quote": "There is no record here of prespecified performance acceptance criteria."
+          }
+        ],
+        "recommendation": "Provide a dated, context-appropriate prespecified evaluation protocol or explain missing records.",
+        "requires_human_review": true,
+        "regulatory_conclusion": false
+      },
+      {
+        "id": "REGU-005",
+        "rule_id": "R10",
+        "category": "missing_documentation",
+        "severity": "medium",
+        "title": "Performance uncertainty documentation not located",
+        "description": "No uncertainty documentation was located in the provided package during the bounded review. This does not prove it does not exist elsewhere.",
+        "sources": [
+          {
+            "document": "validation_report.txt",
+            "page": 1,
+            "quote": "Confidence intervals and uncertainty estimates are not presented."
+          }
+        ],
+        "recommendation": "Provide justified uncertainty estimates and calculation methods for reported performance.",
+        "requires_human_review": true,
+        "regulatory_conclusion": false
+      },
+      {
+        "id": "REGU-006",
+        "rule_id": "R11",
+        "category": "missing_documentation",
+        "severity": "medium",
+        "title": "Model limitations and bias documentation not located",
+        "description": "No limitations bias documentation was located in the provided package during the bounded review. This does not prove it does not exist elsewhere.",
+        "sources": [
+          {
+            "document": "model_card.txt",
+            "page": 1,
+            "quote": "No modeling limitations or potential biases are documented here."
+          }
+        ],
+        "recommendation": "Explain applicability, distribution shift, study limitations and potential bias.",
+        "requires_human_review": true,
+        "regulatory_conclusion": false
+      },
+      {
+        "id": "REGU-007",
+        "rule_id": "R08",
+        "category": "missing_documentation",
+        "severity": "medium",
+        "title": "Model-risk discussion not located",
+        "description": "No model risk documentation was located in the provided package during the bounded review. This does not prove it does not exist elsewhere.",
+        "sources": [
+          {
+            "document": "model_card.txt",
+            "page": 1,
+            "quote": "No model risk assessment is documented in this model card."
+          }
+        ],
+        "recommendation": "Discuss model influence, consequences of errors and human oversight for the intended use.",
+        "requires_human_review": true,
+        "regulatory_conclusion": false
+      },
+      {
+        "id": "REGU-008",
+        "rule_id": "R12",
+        "category": "missing_attachment",
+        "severity": "medium",
+        "title": "Referenced evidence attachment unavailable in uploaded package",
+        "description": "external_site_results.pdf is cited but is not included among the provided files.",
+        "sources": [
+          {
+            "document": "scientific_summary.txt",
+            "page": 1,
+            "quote": "Evidence reference: external_site_results.pdf, Appendix E."
+          }
+        ],
+        "recommendation": "Provide the referenced file or replace the reference with an available source.",
+        "requires_human_review": true,
+        "regulatory_conclusion": false
+      }
+    ],
+    "true_positives": 8,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "citation_strings_valid": true
+  },
+  "corrected": {
+    "known_defects": 0,
+    "rule_engine_claims": 25,
+    "findings": [],
+    "true_positives": 0,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": null,
+    "recall": null,
+    "citation_strings_valid": true
+  },
+  "scope_note": "Fixture-specific extraction + deterministic verification on two authored synthetic cases only. NOT performance of Gemini or general FDA documentation review."
+}
