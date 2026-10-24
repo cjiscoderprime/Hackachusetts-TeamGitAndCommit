@@ -2,7 +2,7 @@
 
 ## Introduction
 
-ReguLens AI is a hackathon proof-of-concept that performs a preliminary evidence-integrity audit of synthetic, AI-assisted drug development documentation. This spec covers the frontend prototype in `frontend/`. It is a React single-page app with these features:
+BioLyze AI is a hackathon proof-of-concept that performs a preliminary evidence-integrity audit of synthetic, AI-assisted drug development documentation. This spec covers the frontend MVP for the seven-hour build: a single-page React app that uploads 2–3 PDF/TXT documents to `POST /analyze`, renders findings grouped by severity with source citations, handles loading and error states, downloads the result as JSON, and supports rerunning with corrected files and a summary-level comparison of two runs.
 
 - Signed-in users and anonymous demo visitors can upload 2–3 PDF documents as an analysis run.
 - The app follows the run's reported status.
@@ -29,22 +29,15 @@ The root `README.md` is the source of truth for the findings contract. `frontend
 
 ## Glossary
 
-- **App**: The ReguLens React single-page application in `frontend/`.
-- **Auth_Service**: The Supabase Auth project configured through `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
-- **Session**: The Supabase session of the signed-in user, including its access token.
-- **Router**: The App module that maps browser paths to views and performs navigation.
-- **Private_Workspace**: The views under `/app`, available only with a Session.
-- **Public_Demo**: The views under `/demo`, available without a Session and always backed by the Mock_Adapter.
-- **Upload_Page**: The view where the user selects, reviews, and removes files and starts a Run.
-- **Run_Page**: The view that shows one Run's status, documents, and findings.
-- **History_Page**: The view that lists Runs available to the current adapter.
-- **Finding_Card**: The component that renders one Finding.
-- **Comparison_View**: The component that summarizes an earlier Run and the current Run side by side.
-- **Evidence_Dialog**: The modal dialog that shows a Source_Citation and its source PDF.
-- **PDF_Viewer**: The component that renders source PDF pages locally with PDF.js.
-- **Review_Controls**: The per-finding review status and note controls.
-- **Disclaimer**: The persistent notice stating the limits of ReguLens results.
-- **Backend**: The FastAPI service owned by the tech lead.
+- **App**: The BioLyze React single-page application in `frontend/`.
+- **Upload_Panel**: The App component where the user selects, reviews, and removes files.
+- **Api_Client**: The App module that sends the analyze request and validates the response.
+- **Results_Dashboard**: The App component that renders the Current_Run.
+- **Finding_Card**: The App component that renders one Finding.
+- **Comparison_View**: The App component that shows a summary of the Previous_Run and the Current_Run side by side.
+- **Report_Exporter**: The App module that downloads the Current_Run response as a JSON file.
+- **Disclaimer_Banner**: The persistent notice stating the limits of BioLyze results.
+- **Backend**: The FastAPI service exposing `POST /analyze`, owned by the tech lead.
 - **API_Base_URL**: The Backend root URL, read from `VITE_API_BASE_URL`.
 - **Runs_Adapter**: The App interface `createRun`, `getRun`, `listRuns`, `getSource`, `saveReview`.
 - **Live_Adapter**: The Runs_Adapter implementation that calls the Backend.
@@ -259,13 +252,13 @@ The root `README.md` is the source of truth for the findings contract. `frontend
 
 ### Requirement 12: Disclaimers
 
-**User Story:** As the product team, I want the UI to state the limits of ReguLens, so that users do not mistake findings for regulatory decisions.
+**User Story:** As the product team, I want the UI to state the limits of BioLyze, so that users do not mistake findings for regulatory decisions.
 
 #### Acceptance Criteria
 
-1. THE App SHALL display the Disclaimer on every view, stating that ReguLens provides a preliminary evidence-integrity audit and is not an FDA approval prediction or regulatory compliance certification.
-2. THE Disclaimer SHALL state that severity is a triage label and not a regulatory risk determination.
-3. THE Disclaimer SHALL state that demo documents are synthetic and fictional.
+1. THE App SHALL display the Disclaimer_Banner on every view, stating that BioLyze provides a preliminary evidence-integrity audit and is not an FDA approval prediction or regulatory compliance certification.
+2. THE Disclaimer_Banner SHALL state that severity is a triage label and not a regulatory risk determination.
+3. THE Disclaimer_Banner SHALL state that demo documents are synthetic and fictional.
 4. THE App SHALL present results without approval probabilities, regulatory scores, or certification badges.
 5. THE Review_Controls SHALL state that "Reviewed" means inspected, not resolved or scientifically confirmed.
 

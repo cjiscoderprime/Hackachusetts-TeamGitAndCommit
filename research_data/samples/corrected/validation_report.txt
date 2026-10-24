@@ -1,0 +1,21 @@
+SYNTHETIC — NOT REAL SCIENTIFIC OR REGULATORY EVIDENCE
+Document ID: VAL-001 | Revision: 2 | Page: 1
+Product: AB-101 (fictional); Model: HepaRisk v2.1.
+Endpoint: HepG2_assay_positive.
+Evaluation dataset: TEST-01; n=100; Lab A held-out test set.
+Reference labels: synthetic binary assay outcomes (1=positive, 0=negative).
+Counts: TP=32; FN=8; TN=54; FP=6.
+Reported sensitivity: 0.80 on TEST-01 for HepaRisk v2.1.
+Reported specificity: 0.90 on TEST-01 for HepaRisk v2.1.
+Reported accuracy: 0.86 on TEST-01 for HepaRisk v2.1.
+95% Wilson confidence interval for sensitivity: [0.652, 0.895].
+95% Wilson confidence interval for specificity: [0.799, 0.953].
+Data origin: Lab A. Training and test batches are recorded as distinct;
+TEST-01 had no overlap with TRAIN-01 (fictional documented protocol).
+The model has not undergone independent external-laboratory validation.
+Pre-evaluation protocol: PROT-01 Rev 1, dated 2026-10-03.
+PROT-01 prespecified sensitivity >= 0.75 and specificity >= 0.85 for
+this narrow internal triage use; evaluation dated 2026-10-10.
+Both prespecified metric thresholds were met on TEST-01.
+Performance acceptance criteria and protocol timing are sponsor-defined
+for this synthetic case, NOT universal FDA thresholds.

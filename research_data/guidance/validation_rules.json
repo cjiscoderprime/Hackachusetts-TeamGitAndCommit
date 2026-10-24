@@ -1,0 +1,247 @@
+{
+  "schema_version": "1.0",
+  "created_on": "2026-10-24",
+  "purpose": "ReguLens synthetic evidence integrity audit, not FDA approval or full eCTD compliance",
+  "authorities": [
+    {
+      "source_id": "FDA-AI-2025-DRAFT",
+      "type": "draft_nonbinding",
+      "date": "January 2025",
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological",
+      "notes": "FDA draft, recommendations only; tailored to context of use and model risk"
+    },
+    {
+      "source_id": "CFR-31223-2026-10-22",
+      "type": "binding_regulation_if_applicable",
+      "date": "2026-10-22 snapshot",
+      "section": "21 CFR 312.23(a)(8)",
+      "url": "https://www.ecfr.gov/current/title-21/section-312.23",
+      "notes": "IND pharmacology/toxicology context; package is pre-IND and incomplete; not scored for compliance."
+    }
+  ],
+  "scoping": {
+    "target": "fictional AI-assisted pre-IND assay evidence",
+    "supported_file_types": [
+      "txt",
+      "pdf through backend parsing"
+    ],
+    "prohibited_outputs": [
+      "FDA-approved",
+      "FDA certification",
+      "approval probability",
+      "clinical safety determination"
+    ],
+    "missing_documentation_means": "Not located in the supplied package; human review needed, not automatically a deficiency",
+    "source_integrity": "Every finding source quote must be verified against uploaded content before rendering."
+  },
+  "rules": [
+    {
+      "rule_id": "R03",
+      "category": "model_version_mismatch",
+      "name": "Proposed-use model version",
+      "scientific_meaning": "Two documents explicitly identify the same model for the same proposed use but with conflicting version identifiers.",
+      "detection_criteria": "model_name + proposed-use role + explicit versions, source quotes",
+      "required_evidence": "Source quotes documenting named model and proposed-use version from two sources.",
+      "example": "Model identity in summary v2.1 vs intended-use model card v2.0",
+      "severity": "high",
+      "severity_rationale": "Material conflict likely to mislead a decision about this specific evidence package.",
+      "expected_output": {
+        "category": "model_version_mismatch",
+        "severity": "high",
+        "source_citations_required": true,
+        "human_review_required": true,
+        "recommendation": "Reconcile model identity and update source documents; do not flag historical versions."
+      },
+      "detection_mode": "deterministic",
+      "regulatory_sources": [],
+      "regulatory_status": "Scientific/document consistency check; no invented FDA legal requirement"
+    },
+    {
+      "rule_id": "R04",
+      "category": "metric_mismatch",
+      "name": "Same-context performance mismatch",
+      "scientific_meaning": "Two reported values disagree for the same model, model version, endpoint, dataset, evaluation split, metric definition and relevant units, or a reported value differs from independently recomputed counts.",
+      "detection_criteria": "Same evaluation identity, two metric quotes and/or TP/FN/TN/FP counts",
+      "required_evidence": "Comparable endpoint/model/version/cohort/split/metric definition plus original numbers, units, and source quotes.",
+      "example": "Sensitivity 0.95 in summary vs 0.80 in validation report and 32/(32+8)=0.80",
+      "severity": "high",
+      "severity_rationale": "Material conflict likely to mislead a decision about this specific evidence package.",
+      "expected_output": {
+        "category": "metric_mismatch",
+        "severity": "high",
+        "source_citations_required": true,
+        "human_review_required": true,
+        "recommendation": "Recalculate and reconcile sensitivity; preserve both quoted sources."
+      },
+      "detection_mode": "deterministic",
+      "regulatory_sources": [],
+      "regulatory_status": "Scientific/document consistency check; no invented FDA legal requirement"
+    },
+    {
+      "rule_id": "R06",
+      "category": "unsupported_claim",
+      "name": "Evidence contradiction",
+      "scientific_meaning": "An assertion of independent external validation conflicts with explicit evidence specifying only within-institution testing. Missing evidence alone requires human review.",
+      "detection_criteria": "Assertion quote plus evidence quote, same model/use",
+      "required_evidence": "Assertion of external validation and explicit, source-backed record of where test data originated.",
+      "example": "Summary: validated at independent external laboratory; report: not external-laboratory dataset",
+      "severity": "high",
+      "severity_rationale": "Material conflict likely to mislead a decision about this specific evidence package.",
+      "expected_output": {
+        "category": "unsupported_claim",
+        "severity": "high",
+        "source_citations_required": true,
+        "human_review_required": true,
+        "recommendation": "Clarify test location and replace/withdraw unsupported external-validation claim."
+      },
+      "detection_mode": "hybrid",
+      "regulatory_sources": [
+        {
+          "source_id": "FDA-AI-2025-DRAFT",
+          "source_type": "draft_nonbinding",
+          "section": "IV.A.4.b",
+          "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological",
+          "usage": "context-specific review recommendation; not mandatory regulation"
+        }
+      ],
+      "regulatory_status": "Context-dependent draft guidance only; not a finding of FDA noncompliance"
+    },
+    {
+      "rule_id": "R09",
+      "category": "missing_documentation",
+      "name": "Acceptance-criteria review",
+      "scientific_meaning": "Scoped documentation review explicitly finds no prespecified, context-appropriate performance acceptance criteria in provided package.",
+      "detection_criteria": "Reviewed package scope; explicit negative/absence marker and no positive evidence",
+      "required_evidence": "Explicit scoped documentation review and evidence that criteria are absent in uploaded material, not merely omitted by extraction.",
+      "example": "Validation report says no prespecified performance acceptance criteria recorded",
+      "severity": "medium",
+      "severity_rationale": "Documentation or attachment is unclear or unavailable within the small uploaded package; requires follow-up.",
+      "expected_output": {
+        "category": "missing_documentation",
+        "severity": "medium",
+        "source_citations_required": true,
+        "human_review_required": true,
+        "recommendation": "Provide dated prospectively defined criteria appropriate to the context of use, or explain their absence."
+      },
+      "detection_mode": "hybrid",
+      "regulatory_sources": [
+        {
+          "source_id": "FDA-AI-2025-DRAFT",
+          "source_type": "draft_nonbinding",
+          "section": "IV.A.4",
+          "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological",
+          "usage": "context-specific review recommendation; not mandatory regulation"
+        }
+      ],
+      "regulatory_status": "Context-dependent draft guidance only; not a finding of FDA noncompliance"
+    },
+    {
+      "rule_id": "R10",
+      "category": "missing_documentation",
+      "name": "Performance uncertainty review",
+      "scientific_meaning": "Scoped documentation review identifies missing uncertainty estimates for reported performance.",
+      "detection_criteria": "Reviewed package; explicit negative/missing marker and no positive estimates",
+      "required_evidence": "Explicit scoped documentation review of performance uncertainty, no contrary positive evidence.",
+      "example": "Validation report says confidence intervals not presented",
+      "severity": "medium",
+      "severity_rationale": "Documentation or attachment is unclear or unavailable within the small uploaded package; requires follow-up.",
+      "expected_output": {
+        "category": "missing_documentation",
+        "severity": "medium",
+        "source_citations_required": true,
+        "human_review_required": true,
+        "recommendation": "Report interpretable performance uncertainty and method; qualified scientist review."
+      },
+      "detection_mode": "hybrid",
+      "regulatory_sources": [
+        {
+          "source_id": "FDA-AI-2025-DRAFT",
+          "source_type": "draft_nonbinding",
+          "section": "IV.A.4.b",
+          "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological",
+          "usage": "context-specific review recommendation; not mandatory regulation"
+        }
+      ],
+      "regulatory_status": "Context-dependent draft guidance only; not a finding of FDA noncompliance"
+    },
+    {
+      "rule_id": "R11",
+      "category": "missing_documentation",
+      "name": "Limitations and bias review",
+      "scientific_meaning": "Scoped documentation review identifies no limitations, applicability, representativeness or bias discussion.",
+      "detection_criteria": "Reviewed package; explicit negative marker and no countervailing discussion",
+      "required_evidence": "Explicit scoped review of model limitations and bias documentation, no contrary positive evidence.",
+      "example": "Model card says limitations and biases not documented here",
+      "severity": "medium",
+      "severity_rationale": "Documentation or attachment is unclear or unavailable within the small uploaded package; requires follow-up.",
+      "expected_output": {
+        "category": "missing_documentation",
+        "severity": "medium",
+        "source_citations_required": true,
+        "human_review_required": true,
+        "recommendation": "Describe limitations, out-of-distribution risks and label bias."
+      },
+      "detection_mode": "hybrid",
+      "regulatory_sources": [
+        {
+          "source_id": "FDA-AI-2025-DRAFT",
+          "source_type": "draft_nonbinding",
+          "section": "IV.A.4.b",
+          "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological",
+          "usage": "context-specific review recommendation; not mandatory regulation"
+        }
+      ],
+      "regulatory_status": "Context-dependent draft guidance only; not a finding of FDA noncompliance"
+    },
+    {
+      "rule_id": "R08",
+      "category": "missing_documentation",
+      "name": "Model-risk review",
+      "scientific_meaning": "Scoped documentation review identifies no discussion of model influence on decisions and consequences of errors.",
+      "detection_criteria": "Reviewed package; explicit negative marker and no countervailing risk rationale",
+      "required_evidence": "Explicit scoped review of model influence and consequences of error, no contrary positive evidence.",
+      "example": "Model card says no model risk assessment is documented",
+      "severity": "medium",
+      "severity_rationale": "Documentation or attachment is unclear or unavailable within the small uploaded package; requires follow-up.",
+      "expected_output": {
+        "category": "missing_documentation",
+        "severity": "medium",
+        "source_citations_required": true,
+        "human_review_required": true,
+        "recommendation": "Document model influence, decision consequences, mitigations and human oversight."
+      },
+      "detection_mode": "hybrid",
+      "regulatory_sources": [
+        {
+          "source_id": "FDA-AI-2025-DRAFT",
+          "source_type": "draft_nonbinding",
+          "section": "IV.A.3",
+          "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological",
+          "usage": "context-specific review recommendation; not mandatory regulation"
+        }
+      ],
+      "regulatory_status": "Context-dependent draft guidance only; not a finding of FDA noncompliance"
+    },
+    {
+      "rule_id": "R12",
+      "category": "missing_attachment",
+      "name": "Unresolved cited attachment",
+      "scientific_meaning": "A document cites a named attachment absent from the authoritative list of provided files.",
+      "detection_criteria": "Reference quote and backend-provided filenames; not a model guess",
+      "required_evidence": "Referenced attachment name and full authoritative uploaded document inventory from server.",
+      "example": "external_site_results.pdf is cited but not uploaded",
+      "severity": "medium",
+      "severity_rationale": "Documentation or attachment is unclear or unavailable within the small uploaded package; requires follow-up.",
+      "expected_output": {
+        "category": "missing_attachment",
+        "severity": "medium",
+        "source_citations_required": true,
+        "human_review_required": true,
+        "recommendation": "Upload the cited file or update/remove the reference; absence refers only to analyzed package."
+      },
+      "detection_mode": "deterministic",
+      "regulatory_sources": [],
+      "regulatory_status": "Scientific/document consistency check; no invented FDA legal requirement"
+    }
+  ]
+}

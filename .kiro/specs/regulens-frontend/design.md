@@ -2,7 +2,7 @@
 
 ## Overview
 
-The ReguLens frontend is a React single-page app in `frontend/` that lets a signed-in user (or an anonymous visitor in a public demo) assemble an evidence package of 2–3 PDFs, submit it as an analysis **run**, follow the run's reported status, review severity-grouped findings with source citations, open the cited source PDF in an in-app viewer, record a personal review note per finding, reopen past runs from an analysis history, compare finding counts with an earlier run, and download the completed findings response as JSON.
+The BioLyze frontend is a single-page React app in `frontend/` that uploads 2–3 PDF files to `POST /analyze`, validates the response, and renders either a severity-grouped findings dashboard (Completed_Result) or an extraction-only view (Extracted_Only_Result). It supports JSON download, rerun with different files, a counts-only comparison of two completed runs, and a Mock_Mode that returns one of two local fixtures.
 
 Design principles visible in the code:
 
