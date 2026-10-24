@@ -11,7 +11,6 @@
 ## 🚀 Quick Links
 
 - 📄 **[Full Documentation](./PROJECT_DOCUMENTATION.md)** - Complete technical details
-- 🎯 **[Vision & Strategy](./VISION_AND_REALITY.md)** - Strategic analysis and roadmap
 - 🔬 **[Research Context](./research_data/research/RESEARCH_AND_REGULATORY_CONTEXT.md)** - FDA guidance and scientific background
 
 ---
