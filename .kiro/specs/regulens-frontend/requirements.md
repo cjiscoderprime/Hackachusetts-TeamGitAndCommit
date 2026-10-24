@@ -2,7 +2,7 @@
 
 ## Introduction
 
-ReguLens AI is a hackathon proof-of-concept that performs a preliminary evidence-integrity audit of synthetic, AI-assisted drug development documentation. This spec covers the frontend MVP for the seven-hour build: a single-page React app that uploads 2–3 PDF/TXT documents to `POST /analyze`, renders findings grouped by severity with source citations, handles loading and error states, downloads the result as JSON, and supports rerunning with corrected files and a summary-level comparison of two runs.
+BioLyze AI is a hackathon proof-of-concept that performs a preliminary evidence-integrity audit of synthetic, AI-assisted drug development documentation. This spec covers the frontend MVP for the seven-hour build: a single-page React app that uploads 2–3 PDF/TXT documents to `POST /analyze`, renders findings grouped by severity with source citations, handles loading and error states, downloads the result as JSON, and supports rerunning with corrected files and a summary-level comparison of two runs.
 
 The root `README.md` is the source of truth for the API contract. The backend (FastAPI, extraction, LLM agents, deterministic verifier, guidance JSON) is out of scope.
 
@@ -17,14 +17,14 @@ The root `README.md` is the source of truth for the API contract. The backend (F
 
 ## Glossary
 
-- **App**: The ReguLens React single-page application in `frontend/`.
+- **App**: The BioLyze React single-page application in `frontend/`.
 - **Upload_Panel**: The App component where the user selects, reviews, and removes files.
 - **Api_Client**: The App module that sends the analyze request and validates the response.
 - **Results_Dashboard**: The App component that renders the Current_Run.
 - **Finding_Card**: The App component that renders one Finding.
 - **Comparison_View**: The App component that shows a summary of the Previous_Run and the Current_Run side by side.
 - **Report_Exporter**: The App module that downloads the Current_Run response as a JSON file.
-- **Disclaimer_Banner**: The persistent notice stating the limits of ReguLens results.
+- **Disclaimer_Banner**: The persistent notice stating the limits of BioLyze results.
 - **Backend**: The FastAPI service exposing `POST /analyze`, owned by the tech lead.
 - **API_Base_URL**: The Backend root URL, read from `VITE_API_BASE_URL`.
 - **Mock_Mode**: The App configuration enabled by `VITE_USE_MOCK=true`, in which the Api_Client returns a Mock_Fixture instead of calling the Backend.
@@ -206,11 +206,11 @@ The root `README.md` is the source of truth for the API contract. The backend (F
 
 ### Requirement 12: Disclaimers
 
-**User Story:** As the product team, I want the UI to state the limits of ReguLens, so that users do not mistake findings for regulatory decisions.
+**User Story:** As the product team, I want the UI to state the limits of BioLyze, so that users do not mistake findings for regulatory decisions.
 
 #### Acceptance Criteria
 
-1. THE App SHALL display the Disclaimer_Banner on every view, stating that ReguLens provides a preliminary evidence-integrity audit and is not an FDA approval prediction or regulatory compliance certification.
+1. THE App SHALL display the Disclaimer_Banner on every view, stating that BioLyze provides a preliminary evidence-integrity audit and is not an FDA approval prediction or regulatory compliance certification.
 2. THE Disclaimer_Banner SHALL state that severity is a triage label and not a regulatory risk determination.
 3. THE Disclaimer_Banner SHALL state that demo documents are synthetic and fictional.
 4. THE App SHALL present results without approval probabilities, regulatory scores, or certification badges.
