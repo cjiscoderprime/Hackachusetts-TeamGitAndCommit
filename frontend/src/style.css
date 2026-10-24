@@ -156,3 +156,44 @@ button.text-button {
   -webkit-box-shadow: 0 0 0 1000px #222137 inset !important;
   caret-color: #B49AFF;
 }
+
+
+/* ======================================
+   BioLyze — Dark Analysis History Cards
+   ====================================== */
+
+.history-list {
+  background: transparent;
+}
+
+.history-list li {
+  background: #1B1C2D !important;
+  color: #E4DDF7 !important;
+  border: 1px solid #34334D !important;
+  border-radius: 12px;
+}
+
+.history-list li h2,
+.history-list li strong {
+  color: #F5F3FF !important;
+}
+
+.history-list li p,
+.history-list li .fineprint {
+  color: #A6A4BA !important;
+}
+
+.history-list li .eyebrow {
+  color: #B49AFF !important;
+}
+
+.history-list li .secondary {
+  background: #29243E !important;
+  color: #F5F3FF !important;
+  border-color: #45415F !important;
+}
+
+.history-list li .secondary:hover {
+  background: #382C5A !important;
+  border-color: #9467F5 !important;
+}
