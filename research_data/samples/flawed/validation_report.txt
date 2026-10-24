@@ -1,0 +1,16 @@
+SYNTHETIC — NOT REAL SCIENTIFIC OR REGULATORY EVIDENCE
+Document ID: VAL-001 | Revision: 1 | Page: 1
+Product: AB-101 (fictional); Model: HepaRisk v2.1.
+Endpoint: HepG2_assay_positive.
+Evaluation dataset: TEST-01; n=100; Lab A held-out test set.
+Reference labels: synthetic binary assay outcomes (1=positive, 0=negative).
+Counts: TP=32; FN=8; TN=54; FP=6.
+Reported sensitivity: 0.80 on TEST-01 for HepaRisk v2.1.
+Reported specificity: 0.90 on TEST-01 for HepaRisk v2.1.
+Reported accuracy: 0.86 on TEST-01 for HepaRisk v2.1.
+Data origin: Test samples were collected and labeled in Lab A.
+The same institution produced the development and test data, from
+separate batches. The test dataset is not an external-laboratory dataset.
+No external-site study data are included in this validation report.
+There is no record here of prespecified performance acceptance criteria.
+Confidence intervals and uncertainty estimates are not presented.

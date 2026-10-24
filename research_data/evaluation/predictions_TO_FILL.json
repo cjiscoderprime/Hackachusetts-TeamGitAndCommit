@@ -1,0 +1,13 @@
+{
+  "flawed": {
+    "detected_defect_ids": [],
+    "other_false_positive_count": 0
+  },
+  "corrected": {
+    "detected_defect_ids": [],
+    "other_false_positive_count": 0
+  },
+  "citations_checked": 0,
+  "citations_valid": 0,
+  "_instructions": "Copy this file to predictions.json, inspect real ReguLens reports, manually map findings to F01-F08. Add other_false_positive_count for unsupported invented issues. Citation validity needs source text and page confirmation. Empty placeholder is NOT a measured result."
+}

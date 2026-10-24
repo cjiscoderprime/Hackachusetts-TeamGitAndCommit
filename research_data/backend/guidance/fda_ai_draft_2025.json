@@ -1,0 +1,58 @@
+{
+  "source_id": "FDA-AI-2025-DRAFT",
+  "title": "Considerations for the Use of Artificial Intelligence to Support Regulatory Decision-Making for Drug and Biological Products",
+  "date": "2025-01",
+  "status": "draft_nonbinding",
+  "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological",
+  "scope": "Evidence intended to support regulatory decisions on drug/biological product safety, efficacy or quality; case-specific COU; not general discovery or administrative workflow.",
+  "checks": [
+    {
+      "check_id": "R02",
+      "section": "IV.A.2",
+      "name": "Context of use",
+      "test": "Is model role, scope and supporting evidence documented?",
+      "when_missing": "needs_review",
+      "authority_type": "draft_guidance"
+    },
+    {
+      "check_id": "R07",
+      "section": "IV.A.4.b",
+      "name": "Test-data independence",
+      "test": "Are independent data use and evaluation design described?",
+      "when_missing": "needs_review",
+      "authority_type": "draft_guidance"
+    },
+    {
+      "check_id": "R08",
+      "section": "IV.A.3",
+      "name": "Model risk",
+      "test": "Is influence on decision and consequence of error discussed?",
+      "when_missing": "needs_review",
+      "authority_type": "draft_guidance"
+    },
+    {
+      "check_id": "R09",
+      "section": "IV.A.4",
+      "name": "Prespecified criteria",
+      "test": "Are context-appropriate prespecified evaluation criteria described?",
+      "when_missing": "needs_review",
+      "authority_type": "draft_guidance"
+    },
+    {
+      "check_id": "R10",
+      "section": "IV.A.4.b",
+      "name": "Uncertainty",
+      "test": "Are confidence intervals or other relevant performance uncertainty presented?",
+      "when_missing": "needs_review",
+      "authority_type": "draft_guidance"
+    },
+    {
+      "check_id": "R11",
+      "section": "IV.A.4.b",
+      "name": "Limitations and bias",
+      "test": "Are relevant limitations, representativeness and bias documented?",
+      "when_missing": "needs_review",
+      "authority_type": "draft_guidance"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "synthetic": true,
+  "source": "Section 6 of provided ReguLens Synthetic Research & Regulatory Verification Specification",
+  "flawed": {
+    "case_id": "AB-101-flawed-v1",
+    "expected_defect_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06",
+      "F07",
+      "F08"
+    ]
+  },
+  "corrected": {
+    "case_id": "AB-101-corrected-v2",
+    "expected_defect_ids": []
+  },
+  "defects": {
+    "F01": {
+      "type": "metric_mismatch",
+      "rule": "R04",
+      "description": "Same-context sensitivity 0.95 vs 0.80",
+      "sources": [
+        "scientific_summary.txt",
+        "validation_report.txt"
+      ]
+    },
+    "F02": {
+      "type": "model_version_mismatch",
+      "rule": "R03",
+      "description": "Intended-use model version v2.0 vs v2.1",
+      "sources": [
+        "scientific_summary.txt",
+        "model_card.txt"
+      ]
+    },
+    "F03": {
+      "type": "unsupported_claim",
+      "rule": "R06",
+      "description": "External-laboratory validation claim inconsistent with within-Lab-A testing",
+      "sources": [
+        "scientific_summary.txt",
+        "validation_report.txt"
+      ]
+    },
+    "F04": {
+      "type": "missing_documentation",
+      "rule": "R09",
+      "description": "No prespecified performance acceptance criteria in supplied package",
+      "sources": [
+        "validation_report.txt"
+      ]
+    },
+    "F05": {
+      "type": "missing_documentation",
+      "rule": "R10",
+      "description": "Missing uncertainty intervals",
+      "sources": [
+        "validation_report.txt"
+      ]
+    },
+    "F06": {
+      "type": "missing_documentation",
+      "rule": "R11",
+      "description": "Missing limitations or bias discussion",
+      "sources": [
+        "model_card.txt"
+      ]
+    },
+    "F07": {
+      "type": "missing_documentation",
+      "rule": "R08",
+      "description": "Missing risk assessment about influence and decision consequences",
+      "sources": [
+        "model_card.txt"
+      ]
+    },
+    "F08": {
+      "type": "missing_attachment",
+      "rule": "R12",
+      "description": "external_site_results.pdf cited but not uploaded",
+      "sources": [
+        "scientific_summary.txt"
+      ]
+    }
+  },
+  "must_not_flag": [
+    "TRAIN-01 sensitivity 0.99 vs TEST-01 sensitivity 0.80 (different evaluation contexts)",
+    "TEST-01 sample size n=100 vs 32+8+54+6",
+    "Same-context sensitivity 0.80 vs computed 0.80"
+  ],
+  "warning": "Use ground_truth.json ONLY in offline evaluation, NEVER send to Gemini or user-facing ReguLens reviewer."
+}
