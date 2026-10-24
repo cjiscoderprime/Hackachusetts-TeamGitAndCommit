@@ -2,160 +2,319 @@
 
 ## Overview
 
-Build the seven-hour frontend MVP in `frontend/` exactly as described in `design.md`: plain JavaScript, React, Vite, Tailwind v4, native `fetch`/`FormData`. Pure logic goes first (`frontend/src/lib/logic.js`), then fixtures, the API client, presentational components, and finally `frontend/src/App.jsx` wiring. Only files under `frontend/` change; `backend/`, `samples/`, `tests/`, and `README.md` are never modified.
+This plan is reverse-engineered from the implemented prototype in `frontend/` (commit `21d1321`) and mirrors `design.md` and `requirements.md`.
+
+- Checked tasks exist in code.
+- Unchecked tasks are known gaps (marked **Status: not yet implemented** in `requirements.md`) or work blocked on the backend contract.
+
+The stack is plain JavaScript with React 19 and Vite 7, Supabase Auth, PDF.js, a custom router, hand-written CSS (Tailwind is imported), and `node:test`. Only files under `frontend/` change; `backend/`, `samples/`, `tests/`, and `README.md` are never modified.
 
 ## Tasks
 
-- [ ] 1. Scaffold the frontend project
-  - [ ] 1.1 Set up Vite React (plain JS) with Tailwind v4 and the test toolchain
-    - Scaffold `frontend/` from the Vite `react` template (JavaScript, not TypeScript); if `frontend/` already holds an earlier app, align it to the design structure and ask the user before removing any pre-existing files
-    - Install `tailwindcss` and `@tailwindcss/vite`; `frontend/vite.config.js` uses `react()` and `tailwindcss()` plugins and sets `test: { environment: 'jsdom' }`
-    - `frontend/src/index.css` contains `@import "tailwindcss";`; `frontend/src/main.jsx` renders `<App />` via `createRoot`
-    - Install pinned devDependencies with `npm install -D -E`: `vitest@3.2.4`, `fast-check@4.1.1`, `@testing-library/react@16.3.0`, `@testing-library/dom@10.4.0`, `jsdom@26.1.0`; keep the lockfile
-    - Set `"test": "vitest --run"` in `frontend/package.json`
-    - Create `frontend/.env.example` with only `VITE_API_BASE_URL=http://localhost:8000` and `VITE_USE_MOCK=false`
-    - Confirm `.kiro/` is not listed in any `.gitignore` (do not edit the root `README.md`)
-    - Create empty placeholder `frontend/src/App.jsx` rendering the page `<h1>` so the build runs
+- [x] 1. Scaffold the frontend project
+  - [x] 1.1 Set up Vite + React (plain JS) with Tailwind v4 and the Node test runner
+    - `frontend/package.json`:
+      - Pinned: `react`/`react-dom` 19.2.3, `vite` 7.3.0
+      - Caret ranges: `@supabase/supabase-js`, `pdfjs-dist`, `tailwindcss`, `@tailwindcss/vite`
+    - Scripts:
+      - `dev` = `vite --host 127.0.0.1 --port 5173 --strictPort`
+      - `build`, `preview`
+      - `test` = `node --test src/api.test.js src/services/services.test.js src/auth/google.test.js`
+    - `frontend/vite.config.js` registers only `tailwindcss()`; JSX modules import `React` explicitly
+    - `frontend/index.html`: title "ReguLens AI · Evidence review", meta description, theme color `#173e3b`, favicon `/assets/regulens-logo.png`
+    - `frontend/.env.example`: `VITE_API_BASE_URL=http://localhost:8000`, `VITE_USE_MOCK=true`, and empty `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (public values only)
+    - `frontend/.gitignore` excludes `node_modules/`, `dist/`, `.env.local`, `.env.*.local`
+    - `frontend/DEVELOPMENT.md` and `frontend/CONTRACT-PENDING.md` document setup and the integration boundary
     - _Requirements: 2.3, 14.3, 14.4_
 
-- [ ] 2. Implement pure helpers in `frontend/src/lib/logic.js`
-  - [ ] 2.1 Implement file validation helpers
-    - `PER_FILE_LIMIT`, `MAX_FILES`, `MIN_FILES`, `isSupportedExtension`, `validateFile`, `addFiles`, `canAnalyze`, `requiredCountMessage` with the messages from the design Error Handling table
-    - _Requirements: 1.4, 1.5, 1.6, 1.7, 1.8_
+  - [ ] 1.2 Pin the remaining dependency ranges
+    - Replace the caret ranges for `@supabase/supabase-js`, `pdfjs-dist`, `tailwindcss`, and `@tailwindcss/vite` with the exact versions in `package-lock.json`
+    - _Requirements: none (dependency hygiene)_
 
-  - [ ]* 2.2 Write property test for file selection
-    - **Property 1: File selection invariants**
-    - **Validates: Requirements 1.4, 1.5, 1.6, 1.7, 1.8**
-    - File: `frontend/src/lib/logic.test.js`; `numRuns: 100`; tag comment per design
+- [x] 2. Implement shared contract helpers in `frontend/src/api.js`
+  - [x] 2.1 Environment and severity helpers
+    - `API_BASE_URL` (default `http://localhost:8000`, trailing slashes stripped), `MOCK_MODE = VITE_USE_MOCK === 'true'`
+    - `groups = ['high','medium','low','Other']`, `severityGroup` (case-insensitive, unknown → `Other`), `counts(result)`
+    - _Requirements: 2.3, 6.2, 6.3, 11.1_
 
-  - [ ] 2.3 Implement response validation and error message helpers
-    - `validateResponse` per the design pseudocode; `httpErrorMessage` (string `detail`, `JSON.stringify` for non-string `detail`, fallback to status and statusText), `networkErrorMessage`, `unsupportedStatusMessage`
-    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 5.1, 5.2, 5.3_
+  - [x] 2.2 Response validation
+    - `validateResponse` returns the body, or throws one of two errors:
+      - "Response format not recognized" when a deep check fails: finding and source entries must be objects, `documents_analyzed` must be a non-negative integer, and each document needs a `pages` array
+      - "Unsupported response status: <JSON status>" for any other status
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.7_
 
-  - [ ]* 2.4 Write property test for response classification
-    - **Property 2: Response classification never promotes non-completed bodies**
-    - **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5**
-    - File: `frontend/src/lib/logic.test.js`; include near-valid bodies with one field broken
+  - [x] 2.3 JSON export serializer
+    - `serializeReport(result)` = `JSON.stringify(result, null, 2)`
+    - _Requirements: 9.2, 9.3_
 
-  - [ ] 2.5 Implement severity grouping and run summary
-    - `normalizeSeverity`, `groupBySeverity` (order high, medium, low, Other; omit empty; stable), `summarizeRun`
-    - _Requirements: 6.1, 6.2, 6.3, 6.4, 10.4_
+  - [x] 2.4 Legacy `analyze(files, fixture, options)` client for `POST /analyze`
+    - Mock: 650 ms delay, then a cloned fixture
+    - Live: `FormData` with a `files` field, optional Bearer header, readable errors
+    - Kept for tests and as a reference; no UI path calls it
+    - _Requirements: none (legacy reference client)_
 
-  - [ ]* 2.6 Write property test for severity grouping
-    - **Property 3: Severity grouping is an ordered partition**
-    - **Validates: Requirements 6.1, 6.2, 6.3, 6.4**
-    - File: `frontend/src/lib/logic.test.js`
+  - [ ] 2.5 Trim whitespace in `severityGroup`
+    - `" high"` currently maps to `Other`. Trim before matching and add a test case
+    - _Requirements: 6.9_
 
-  - [ ] 2.7 Implement view, guidance, export, and comparison helpers
-    - `citationView`, `fieldOrNotProvided`, `guidanceView`, `guidanceLabel` (returns `null` for every input pending A7), `serializeReport`, `REPORT_FILENAME = 'regulens-report.json'`, `isComparable`
-    - _Requirements: 7.6, 7.7, 7.9, 7.11, 7.12, 7.13, 9.2, 9.3, 10.4, 10.5_
+  - [x]* 2.6 Example tests in `frontend/src/api.test.js`
+    - Completed and extraction-only results stay distinct
+    - Malformed and unsupported bodies throw
+    - Unknown severities are counted as Other
+    - Export round-trips
+    - Multipart uploads set no manual Content-Type
+    - HTTP, JSON, and network failures throw
+    - Mock mode never fetches
+    - The Bearer header is sent only when a token is supplied
+    - _Requirements: 3.1–3.4, 3.7, 5.1–5.3, 6.2, 6.3, 9.3, 11.2, 11.6_
 
-  - [ ]* 2.8 Write property test for JSON export
-    - **Property 5: JSON export round trip**
-    - **Validates: Requirements 9.2, 9.3**
-    - File: `frontend/src/lib/logic.test.js`; use `fc.jsonValue()`
-
-  - [ ]* 2.9 Write example tests for helpers
-    - `httpErrorMessage` / `networkErrorMessage` with string `detail`, array `detail`, no body
-    - `citationView` / `fieldOrNotProvided` placeholders; `guidanceLabel` returns `null` for strings and objects
-    - File: `frontend/src/lib/logic.test.js`
-    - _Requirements: 5.1, 5.2, 5.3, 7.6, 7.7, 7.9, 7.13_
-
-- [ ] 3. Author mock fixtures
-  - [ ] 3.1 Create `frontend/src/mocks/flawed.json` and `frontend/src/mocks/corrected.json`
-    - Hand-written Completed_Results in the README findings contract, fictional values, not imported from `samples/`
-    - `flawed.json`: several findings across severities, one `unsupported_claim`, one non-null `guidance_reference`; `corrected.json`: fewer findings (zero allowed)
+- [x] 3. Author mock fixtures and demo documents
+  - [x] 3.1 `frontend/src/mocks/flawed.json` and `frontend/src/mocks/corrected.json`
+    - `flawed.json` has 3 findings, all with `guidance_reference: null`:
+      - high `metric_mismatch` with two sources
+      - medium `unsupported_claim`
+      - low `missing_documentation` with no sources
+    - `corrected.json` has zero findings
     - _Requirements: 6.7, 11.7_
 
-- [ ] 4. Implement `frontend/src/api.js`
-  - [ ] 4.1 Implement `analyze(files, { useMock, fixture, baseUrl })`
-    - Mock path: return the named fixture through `validateResponse`, no `fetch`, never choose or switch fixtures
-    - Live path: `FormData` with each file under `files`, `fetch(`${baseUrl}/analyze`, { method: 'POST', body })` with no `headers`; map fetch rejection, non-2xx, invalid JSON, `invalid`, and `unsupported` to `{ok:false, message}`; success returns `{ok:true, run:{result, kind, filenames}}` with filenames captured before the request
-    - Live path contains no fixture references
-    - _Requirements: 2.1, 2.2, 2.4, 3.3, 3.4, 5.1, 5.2, 5.3, 11.2, 11.4, 11.6_
+  - [x] 3.2 `frontend/src/services/pdf.js` synthetic PDF generator
+    - `makeDemoPdf(lines)`
+    - `demoDocumentLines` for `scientific-summary.pdf`, `model-validation.pdf`, `results-table.pdf`
+    - `demoFiles()`
+    - _Requirements: 1.10, 11.9, 12.3_
 
-  - [ ]* 4.2 Write property test for live failures
-    - **Property 6: Live failures never yield mock data**
-    - **Validates: Requirements 5.1, 5.2, 5.3, 11.6**
-    - File: `frontend/src/api.test.js`; stub `fetch` with rejections, arbitrary non-2xx, and bad 2xx bodies, for both `fixture` values
+  - [ ] 3.3 Add a fixture with a non-null `guidance_reference` and an unknown severity
+    - No current fixture exercises the guidance branch of `FindingCard` or the Other group
+    - _Requirements: 6.3, 7.11, 7.13_
 
-  - [ ]* 4.3 Write example tests for live and mock paths
-    - Live: `fetch` called once with `${baseUrl}/analyze`, `method:'POST'`, all files under `files`, no `headers`; Run filenames match submitted files
-    - Mock: selected fixture returned on repeated calls, `fetch` not called
-    - File: `frontend/src/api.test.js`
-    - _Requirements: 2.1, 2.2, 2.4, 11.2, 11.4_
+- [x] 4. Implement authentication in `frontend/src/auth/`
+  - [x] 4.1 `AuthProvider.jsx`
+    - Creates the Supabase client only when both public env values are set
+    - Provides the session context and a race-safe initial `getSession`
+    - Exposes `getAccessToken()` and `signOut({scope:'local'})`
+    - _Requirements: 14.1, 15.6, 15.7, 15.8, 15.9_
 
-- [ ] 5. Checkpoint - Ensure all tests pass
-  - Ensure all tests pass, ask the user if questions arise.
+  - [x] 4.2 `AuthPage.jsx` for `/login` and `/signup`
+    - Email/password forms and sign-up confirmation handling
+    - Heading focus on open
+    - Configuration and disabled states
+    - `/demo` entry link
+    - _Requirements: 13.5, 15.1, 15.2, 15.3, 15.6, 16.4_
 
-- [ ] 6. Build presentational components in `frontend/src/components/`
-  - [ ] 6.1 Implement `DisclaimerBanner.jsx`
-    - Static `<section aria-label="Disclaimer">` with the four statements from the design
-    - _Requirements: 12.1, 12.2, 12.3_
+  - [x] 4.3 Google OAuth in `google.js`
+    - `googleEnabled()` reads `/auth/v1/settings`
+    - `beginGoogleSignIn()` redirects to `${origin}/login`
+    - When the provider is off, the button is disabled and a note explains why
+    - _Requirements: 15.4, 15.5_
 
-  - [ ] 6.2 Implement `UploadPanel.jsx`
-    - `<h2>` "Upload documents"; labeled `<input type="file" multiple accept=".pdf,.txt">` reset after each change; file list with name, readable size, and `aria-label="Remove <name>"` buttons
-    - File errors in a `role="alert"` region; required-count message below 2 files
-    - Fixture_Selector (labeled `<select>`, "Flawed sample"/"Corrected sample") only in Mock_Mode, changed only by user input
-    - Analyze button disabled when `!canAnalyze || loading`; "Run again with different files" and "Clear results" when `hasRun`; visible focus styles
-    - _Requirements: 1.1, 1.2, 1.3, 1.7, 1.8, 4.3, 10.1, 10.8, 11.3, 11.4, 13.1, 13.2_
+  - [x]* 4.4 Tests in `frontend/src/auth/google.test.js`
+    - The provider flag follows project settings
+    - OAuth options are passed through
+    - Startup errors stay readable
+    - _Requirements: 15.4, 15.5_
 
-  - [ ] 6.3 Implement `FindingCard.jsx`
-    - `<article>` with `<h4>` title, id, severity text label (raw value for Other), type, explanation, "Recommended action: …"; "Human review required" when `review_required === true`; fixed `unsupported_claim` note
-    - Sources via `citationView` (quote in `<blockquote className="whitespace-pre-wrap">`), "No source citation provided" when missing/empty; guidance via `guidanceView` with optional label
-    - JSX text only, no `dangerouslySetInnerHTML`; `String()` for non-string values
-    - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 7.10, 7.11, 7.12, 7.13, 14.2_
+- [x] 5. Implement routing and the app shell
+  - [x] 5.1 `frontend/src/router.jsx`
+    - `navigate()` (rejects non-relative paths), `useRoute()`, `<Link>`
+    - _Requirements: 16.5, 16.6_
 
-  - [ ]* 6.4 Write property test for quotation integrity
-    - **Property 4: Quotation integrity**
-    - **Validates: Requirements 7.3, 7.4, 7.5, 14.2**
-    - File: `frontend/src/components/FindingCard.test.jsx`; quotes from `fc.string()` plus HTML-like fragments; assert one citation per source, exact `textContent`, no elements created from quote content
+  - [x] 5.2 `frontend/src/main.jsx`
+    - Header with brand, user email, and logout (with lock and error handling)
+    - Route guard for `/app*`, `/` redirect, public `/demo*`, and a 404 view
+    - `Workspace` keyed by user and mode
+    - Footer `Disclaimer` and bottom brand strip
+    - _Requirements: 10.8, 12.1, 12.2, 12.3, 15.7, 15.8, 15.9, 16.1, 16.2, 16.3_
 
-  - [ ] 6.5 Implement `ResultsDashboard.jsx`
-    - Props `run, isMock, headingRef, onDownload`; `<h2 ref tabIndex={-1}>` "Results summary"; "Demo data" label when `isMock`; "Download JSON report" button
-    - `completed`: documents analyzed, total, zero-findings message plus not-a-certification statement, or `groupBySeverity` groups with `<h3>` "Label (n)" and `FindingCard`s; color as a secondary cue only
-    - `extracted_only`: extraction-only notice and each document's filename and page count (missing `pages` = 0); no severity groups
-    - `unsupported` (defensive): "Unsupported response status" with the raw status only
-    - No scores, probabilities, or badges
-    - _Requirements: 3.4, 3.5, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 8.1, 8.2, 9.1, 11.5, 12.4, 13.3, 13.4_
+- [x] 6. Implement the integration layer in `frontend/src/services/`
+  - [x] 6.1 `backendContract.js` pending mapping config
+    - Set: `confirmed:false`, `uploadField:'files'`, `createPath:'/runs'`, `sourceConfirmed:true`, `sourcePath` → `/documents/{id}/source`
+    - Every other path and decoder is `null`
+    - _Requirements: 17.1, 17.4_
 
-  - [ ]* 6.6 Write render example tests for `ResultsDashboard`
-    - `flawed.json` and `corrected.json` render without errors; Extracted_Only_Result shows the notice and no severity headings; zero findings shows the no-findings message
-    - File: `frontend/src/components/ResultsDashboard.test.jsx`
-    - _Requirements: 3.5, 6.6, 6.7, 8.1, 8.2_
+  - [x] 6.2 `http.js` authenticated request helper
+    - Accepts relative paths only
+    - Fetches a fresh token per call and sends it as a Bearer header
+    - Sets JSON Content-Type only for non-FormData bodies
+    - Uses `no-store` and `redirect:'error'`
+    - Maps errors to 401, 403, and HTTP-n messages
+    - Checks the PDF signature; 204 → null
+    - _Requirements: 2.2, 5.1–5.5, 14.5, 14.6, 14.7_
 
-  - [ ] 6.7 Implement `ComparisonView.jsx`
-    - Props `previous, current`; `<h2>` plus two columns "Previous run" / "Current run" in `grid sm:grid-cols-2`, each from `summarizeRun`: total, high/medium/low/Other counts, documents analyzed, filenames
-    - Counts only; fixed stable-issue-identity note
+  - [x] 6.3 `runs.js` live adapter
+    - `ready()` blocks unconfirmed operations without sending requests
+    - Implements `createRun` (multipart), `getRun`, `listRuns`, `saveReview` (PATCH), and `getSource`
+    - _Requirements: 2.2, 11.6, 17.1, 17.3, 19.3_
+
+  - [x] 6.4 `source.js` signed-URL source retrieval
+    - Grant validation: matching `document_id`, HTTPS URL, positive `expires_in`
+    - Credential-free download
+    - One renewal on 401/403
+    - PDF signature check
+    - _Requirements: 18.3, 18.4, 18.5, 18.6_
+
+  - [x] 6.5 `viewModel.js` run validation
+    - `validateRun` enforces the internal Run shape and requires results to be completed and terminal
+    - _Requirements: 3.5, 3.6_
+
+  - [x] 6.6 `mockRuns.js` session demo adapter
+    - In-memory store; lifecycle is queued → processing (350 ms) → completed or failed (3500 ms)
+    - Scenarios: `flawed`, `corrected`, `failure`
+    - Sets `documents_analyzed` to the file count and renames `.txt` source names to `.pdf`
+    - Validates reviews
+    - Generates synthetic source PDFs (the corrected summary shows 0.91)
+    - _Requirements: 11.2, 11.3, 11.4, 11.5, 11.8, 11.9, 19.3_
+
+  - [x] 6.7 `files.js` PDF selection checks
+    - `checkPdfFiles` checks the `.pdf` extension, ≤10 MiB size, `%PDF-` header, and 3-file cap
+    - Duplicate error messages are removed
+    - _Requirements: 1.4, 1.5, 1.6, 1.7_
+
+  - [x]* 6.8 Tests in `frontend/src/services/services.test.js`
+    - File selection rules
+    - Fresh token per request; no absolute URLs
+    - Pending contract blocks calls; confirmed create maps multipart
+    - 401/403 errors
+    - PDF bytes are verified and the token stays out of the URL
+    - Mock lifecycle, history, source, and review; failure scenario
+    - `validateRun` rejections
+    - Fresh source grant per open; single renewal; bad grants rejected
+    - _Requirements: 1.4–1.7, 3.5, 3.6, 5.4, 5.5, 11.4, 11.6, 11.8, 14.5–14.7, 17.1, 18.3–18.6_
+
+  - [ ] 6.9 Map the agreed backend contract and set `confirmed: true`
+    - Blocked on the tech lead
+    - Fill `detailPath`, `historyPath`, `reviewPath`, `decodeRun`, `decodeHistory`, `encodeReview`, `decodeReview`
+    - Confirm `uploadField` and the review HTTP method
+    - Make run responses carry document IDs
+    - Add tests for each decoder against real sample payloads
+    - _Requirements: 2.2, 2.5, 17.1, 17.3; A1, A9_
+
+- [x] 7. Checkpoint: service-layer tests pass
+  - `npm test` passes all 23 tests.
+
+- [x] 8. Build presentational components
+  - [x] 8.1 `components.jsx` → `Icon`, `Disclaimer`
+    - The Disclaimer states that this is a preliminary audit, not an FDA prediction or certification
+    - It also states that severity is a triage label and that demo documents are synthetic
+    - _Requirements: 12.1, 12.2, 12.3, 12.4_
+
+  - [x] 8.2 `components.jsx` → `FindingCard`
+    - Meta row: raw severity badge, id, type
+    - `<h4>` title, optional category, explanation
+    - "Human review required" label and the `unsupported_claim` note
+    - Sources with page and quote placeholders, "No source citation provided", and "Inspect source"
+    - Guidance reference shown as provided (no draft label)
+    - "Recommended action" and `ReviewControls`
+    - Plain JSX text only
+    - _Requirements: 6.3, 7.1–7.11, 7.13, 7.14, 14.2_
+
+  - [ ] 8.3 Draft-guidance label
+    - Show "Draft guidance (nonbinding)" once the A7 source-identity metadata is agreed
+    - _Requirements: 7.12_
+
+  - [x] 8.4 `components.jsx` → `Comparison`
+    - Previous and current columns, each with findings and document counts, per-group counts, and filenames
+    - Counts only, with the stable-identity note
+    - One column under 640 px
     - _Requirements: 10.4, 10.6, 10.7, 13.6_
 
-- [ ] 7. Wire everything in `frontend/src/App.jsx`
-  - [ ] 7.1 Implement App state, handlers, and layout
-    - Module-scope reads of `VITE_API_BASE_URL` (default `http://localhost:8000`) and `VITE_USE_MOCK === 'true'`, the only env reads
-    - `useState` for `selectedFiles, fileErrors, loading, error, fixture ('flawed'), current, previous`; in-memory only, no browser storage
-    - `onAddFiles`, `onRemoveFile`, `onAnalyze` (guarded, clears error, applies Run transition table on success, sets error on failure without touching files or runs), `onRunAgain` (clears files and file errors only), `onClear` (clears files, runs, error)
-    - `onDownload`: `serializeReport(current.result)` → Blob → temporary object URL on `<a download={REPORT_FILENAME}>`, click, revoke
-    - `useEffect` on `current` focuses the results heading ref
-    - Render order: `DisclaimerBanner`, `<h1>`, `UploadPanel`, `<div aria-live="polite">` with "Analyzing documents" while loading, `role="alert"` error region when error exists, `ComparisonView` when `isComparable`, `ResultsDashboard` when `current` exists
-    - Container `mx-auto max-w-3xl px-4`, `break-words` for long text, focus-visible styles
-    - _Requirements: 2.3, 2.4, 4.1, 4.2, 4.3, 5.4, 5.5, 5.6, 9.2, 10.2, 10.3, 10.5, 10.8, 11.1, 11.5, 13.5, 13.6, 14.1, 14.3_
+  - [x] 8.5 `ReviewWorkspace.jsx` → `text`, `Pipeline`, `ReviewControls`
+    - Four-step workflow overview
+    - Labeled status select and note textarea (max 10000)
+    - Save button, status message, and "personal review only" note
+    - _Requirements: 12.5, 13.2, 19.1, 19.5_
 
-  - [ ]* 7.2 Write App integration example tests
-    - Mock mode with stubbed env: analyze shows "Analyzing documents" in the live region, then results with focus on "Results summary"; second success shows Comparison_View; Clear results removes runs
-    - Live failure (stubbed `fetch`) shows a `role="alert"` message and preserves files and the existing run
-    - File: `frontend/src/App.test.jsx`
-    - _Requirements: 4.1, 4.2, 5.4, 5.5, 10.3, 10.5, 10.8, 13.5_
+  - [x] 8.6 `ReviewWorkspace.jsx` → `EvidenceDialog`
+    - Native modal `<dialog>` with focus restore
+    - Quotation shown separately from the source
+    - Abortable source load; object URL revoked on close
+    - Retry control, open-in-tab link, and `PdfPreview` at the cited page
+    - _Requirements: 7.4, 11.5, 18.1, 18.2, 18.5, 18.9_
 
-- [ ] 8. Final checkpoint - Ensure all tests pass
-  - Run `npm test` and `npm run build` in `frontend/`; ensure all tests pass, ask the user if questions arise.
+  - [x] 8.7 `PdfPreview.jsx`
+    - PDF.js legacy build with `isEvalSupported:false`
+    - Responsive canvas and page navigation
+    - Extracted text in a `<details>` element
+    - Render errors in `role="alert"`
+    - _Requirements: 13.1, 13.2, 18.7, 18.8_
+
+  - [ ]* 8.8 Component render tests
+    - Requires a DOM test environment (for example jsdom + Testing Library, pinned)
+    - `FindingCard`: HTML-like quotes render as text with exact `textContent`; placeholders appear for missing fields
+    - Run page: `flawed.json` groups render in order; `corrected.json` shows the no-findings message and the certification statement
+    - _Requirements: 6.2, 6.4, 6.6, 7.3–7.9, 14.2_
+
+- [x] 9. Wire pages in `frontend/src/Workspace.jsx`
+  - [x] 9.1 `Workspace` container
+    - Chooses the mock or live adapter (`publicDemo || MOCK_MODE`)
+    - Nav with "New analysis"
+    - Demo and contract-pending notices
+    - `successful` runs list and route dispatch
+    - `ErrorMessage` with "Sign in again" on 401
+    - _Requirements: 5.4, 5.6, 10.1, 10.2, 11.1, 11.5, 17.2_
+
+  - [x] 9.2 `UploadPage`
+    - Intro `<h1>`, upload `<h2>`, and a count chip
+    - Mock scenario select and "Load sample PDFs"
+    - Drag-and-drop zone plus a hidden labeled file input (reset after each change)
+    - File list with remove buttons
+    - Errors in an alert region; a status line
+    - "Start analysis" is disabled under 2 files or while busy; a ref lock prevents double submission; requests abort on unmount
+    - _Requirements: 1.1–1.3, 1.8–1.10, 2.1, 2.4, 4.1, 4.2, 4.8, 5.6, 5.7, 11.3, 13.1, 13.2, 13.7_
+
+  - [x] 9.3 `useRun` polling and `RunPage`
+    - Sequential 1.5 s polling until terminal; abort on unmount; retry
+    - Status pill, run details, and documents with their errors
+    - Findings summary stats and severity sections (`h3`)
+    - Zero-findings and no-report states
+    - Download as `regulens-report.json` (notes excluded)
+    - Comparison with the latest earlier completed run
+    - Source inspection by `document_id` or unique filename
+    - Per-finding review save
+    - Focus moves to the run `h1` on mount and when the result arrives
+    - _Requirements: 4.3–4.8, 5.8, 6.1–6.8, 9.1–9.4, 10.1, 10.3, 10.5, 11.5, 13.3, 13.5, 18.2, 19.2, 19.3, 19.4_
+
+  - [x] 9.4 `HistoryPage`
+    - Focused `h1` and a refresh control
+    - Loading, error, and empty states
+    - Run list with "Open run"
+    - _Requirements: 13.5, 20.1, 20.2, 20.3, 20.4_
+
+  - [ ] 9.5 Extraction-only run view
+    - Render "Text extraction only: findings analysis has not run." with each document's filename and page count
+    - Relax `validateRun` to allow an `extracted_only` result without treating it as completed
+    - _Requirements: 3.7, 8.1, 8.2, 8.3_
+
+  - [ ] 9.6 Mock source lookup for user-uploaded PDFs
+    - In mock mode with user files, fixture citations cannot match the uploaded filenames
+    - Either label citations as fixture-only, or restrict the mock to the sample PDFs
+    - _Requirements: 7.5, 11.9_
+
+- [x] 10. Styling and branding in `frontend/src/style.css` and `frontend/src/brand.js`
+  - Brand tokens: teal `#087E8B`, lavender `#8B87B8`, accent gradient
+  - Georgia display headings
+  - Breakpoints at 640 and 760 px; `overflow-wrap:anywhere` for long values
+  - 3 px `:focus-visible` outline; reduced-motion support
+  - `brandAssets.logo = '/assets/regulens-logo.png'`; the optional `pipeline` image slot is documented in `public/assets/README.md`
+  - _Requirements: 6.5, 13.1, 13.4, 13.6, 13.8_
+
+- [ ] 11. Final checkpoint
+  - [x] 11.1 `npm test` and `npm run build` pass
+  - [ ] 11.2 Manual checks
+    - Keyboard pass of the `/demo` flow
+    - Focus lands on each page `h1`
+    - Widths of 320 and 1920 px without horizontal scrolling
+    - Contrast spot-check
+    - Live Supabase sign-up, sign-in, and sign-out
+    - _Requirements: 13.1, 13.4, 13.5, 13.6, 15.1–15.8_
+  - [x] 11.3 Reconcile `requirements.md` with the prototype
 
 ## Notes
 
-- Tasks marked with `*` are optional and can be skipped for faster MVP
-- Each task references specific requirements for traceability
-- Property tests (Properties 1–6 from `design.md`) use fast-check with at least 100 runs and a tag comment
-- Out of scope: elapsed time, cancel, timeout, health badge, text previews, duplicate detection, match keys, resolved/new/persisting comparison, automatic fixture switching, extra frameworks
-- Never modify `backend/`, `samples/`, `tests/`, or `README.md`
+- Tasks marked `*` are optional test tasks.
+- Checked tasks were verified by reading the code in `frontend/` and running `npm test` (23/23 pass) and a production build.
+- Tests are example-based `node:test` cases with injected `fetchImpl`, `getAccessToken`, `now`, and `id`. There are no property-based or component tests yet.
+- Out of scope today: request timeout, a `GET /health` indicator, duplicate-file detection, issue-level (resolved/new/persisting) comparison, and automatic fixture switching.
+- Never modify `backend/`, `samples/`, `tests/`, or `README.md`.
 
 ## Task Dependency Graph
 
@@ -163,15 +322,15 @@ Build the seven-hour frontend MVP in `frontend/` exactly as described in `design
 {
   "waves": [
     { "id": 0, "tasks": ["1.1"] },
-    { "id": 1, "tasks": ["2.1", "3.1", "6.1"] },
-    { "id": 2, "tasks": ["2.2", "2.3"] },
-    { "id": 3, "tasks": ["2.4", "2.5"] },
-    { "id": 4, "tasks": ["2.6", "2.7"] },
-    { "id": 5, "tasks": ["2.8", "4.1", "6.2"] },
-    { "id": 6, "tasks": ["2.9", "4.2", "6.3", "6.7"] },
-    { "id": 7, "tasks": ["4.3", "6.4", "6.5"] },
-    { "id": 8, "tasks": ["6.6", "7.1"] },
-    { "id": 9, "tasks": ["7.2"] }
+    { "id": 1, "tasks": ["1.2", "2.1", "2.2", "2.3", "3.1", "3.2", "5.1"] },
+    { "id": 2, "tasks": ["2.4", "2.5", "3.3", "4.1", "6.1", "6.7"] },
+    { "id": 3, "tasks": ["2.6", "4.2", "4.3", "6.2", "6.5", "6.6"] },
+    { "id": 4, "tasks": ["4.4", "5.2", "6.3", "6.4", "8.1", "8.5"] },
+    { "id": 5, "tasks": ["6.8", "8.2", "8.4", "8.7"] },
+    { "id": 6, "tasks": ["8.3", "8.6", "9.1"] },
+    { "id": 7, "tasks": ["9.2", "9.3", "9.4", "10"] },
+    { "id": 8, "tasks": ["8.8", "9.5", "9.6", "6.9"] },
+    { "id": 9, "tasks": ["11.1", "11.2", "11.3"] }
   ]
 }
 ```
