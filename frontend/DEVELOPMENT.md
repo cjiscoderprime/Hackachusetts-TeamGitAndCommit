@@ -1,4 +1,4 @@
-# ReguLens frontend
+# BioLyze frontend
 
 React + Vite + Tailwind; Supabase Auth; PDF.js source rendering. Existing design/components are retained; orchestration now uses routes and an isolated application API adapter.
 

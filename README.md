@@ -1,32 +1,150 @@
-# Hackachusetts-TeamGitAndCommit
-Hackachusetts' Boston @ MIT The Engine
-ReguLens AI
-Catch evidence gaps before regulators do.
+# BioLyze AI: Automated Regulatory Evidence Review
 
-Hackachusetts 2026 · Healthcare / Biotech · Proof-of-concept
-Problem
-Teams developing drugs with AI-assisted scientific evidence may assemble claims, validation reports, and tables that disagree or lack supporting documentation. Spotting these discrepancies manually is labor-intensive. ReguLens provides a preliminary evidence-integrity audit, not an FDA approval prediction or regulatory compliance certification.
-Seven-hour MVP
-1. Upload 2–3 synthetic PDF or text documents: a scientific summary, AI model validation report, and results table.
-2. Extract document text with page/source metadata.
-3. Use an LLM to extract structured claims and supporting metrics.
-4. Apply deterministic checks to find contradictions; flag potentially unsupported claims for human review.
-5. Compare the package with selected documentation considerations from FDA's January 2025 draft AI credibility guidance.
-6. Show an actionable findings dashboard and download a JSON report.
-Demo: Run the same fictional package in two forms: seeded inconsistencies, then corrected evidence. Show which findings disappear. Do not claim scientific or regulatory validation.
-Tech stack
-Part	Choice	Why
-UI	React + Vite + Tailwind CSS	Fast frontend development and parallel teamwork
-API	FastAPI (Python)	Simple upload and analysis endpoints
-Document text	PyMuPDF; plain text parser	PDF extraction with page references
-Extraction agent	Gemini API (google-genai)	Structured candidate claims and citations
-Rule engine	Python + Pydantic	Reproducible comparisons, schema validation
-Guidance	Versioned local JSON	Auditable references, no live scraping dependency
-Persistence	In memory	No database or auth needed for demo
-Hosting (optional)	Vercel (UI), Render (API)	Deploy only once local end-to-end demo works
+**Hackathon:** Hackachusetts 2026 @ MIT The Engine  
+**Category:** Healthcare / Biotech  
+**Team:** GitAndCommit  
+
+> "Catch evidence gaps before regulators do."
+
+---
+
+## 🚀 Quick Links
+
+- 📄 **[Full Documentation](./PROJECT_DOCUMENTATION.md)** - Complete technical details
+- 🎯 **[Vision & Strategy](./VISION_AND_REALITY.md)** - Strategic analysis and roadmap
+- 🔬 **[Research Context](./research_data/research/RESEARCH_AND_REGULATORY_CONTEXT.md)** - FDA guidance and scientific background
+
+---
+
+## The Problem
+
+Developing a new biopharmaceutical product takes **10-15 years** and costs **billions of dollars**. While AI accelerates drug discovery, validating scientific evidence and preparing regulatory submissions remain bottlenecks.
+
+### Current Pain Points
+
+- **Manual review burden:** Regulatory teams spend weeks reviewing documentation
+- **Evidence verification:** Citations and metrics must be traced across multiple documents
+- **Costly delays:** Deficiencies trigger 2-6 month resubmission cycles
+- **AI validation complexity:** FDA's 2025 guidance requires specific AI credibility evidence
+- **High failure risk:** 800+ FDA submissions with AI components since 2016
+
+**The core problem:** Companies spend months preparing submissions, only to face rejections for preventable deficiencies like contradictory performance metrics or missing validation evidence.
+
+---
+
+## Our Solution: BioLyze AI
+
+An **AI-powered pre-submission evidence integrity review system** that helps biotechnology companies:
+
+✅ **Check submission quality** before sending to the FDA  
+✅ **Identify potential deficiencies** that would trigger rejection  
+✅ **Verify evidence consistency** across multiple documents  
+✅ **Get actionable feedback** with source-level references  
+✅ **Improve acceptance probability** by catching errors early
+
+### How It Works
+
+```
+Upload Documents → AI Extraction → Evidence Verification → Findings Report
+     ↓                   ↓                    ↓                    ↓
+Scientific PDFs    Gemini extracts      Deterministic        Dashboard with
+Validation reports structured claims    contradiction        source quotes
+Model cards        & metrics            detection            & recommendations
+```
+
+**Key Innovation:**
+- ✨ **Source traceability** - Every finding traces to document, page, exact quote
+- 🔢 **Domain-specific checks** - Confusion matrix arithmetic verification
+- 📋 **FDA alignment** - Maps to 2025 AI credibility guidance
+- 📊 **Before/after comparison** - Shows evidence quality improvement
+
+---
+
+## What We Built (7 Hours)
 
 
-AI availability, model names, rate limits, and free tiers can change. Support deterministic checks when AI calls fail. Never put API credentials in frontend environment variables.
+
+
+### Full-Stack Application
+
+**Frontend** (`/frontend`)
+- React 19 + Vite + Tailwind CSS
+- Drag-and-drop PDF upload (2-3 documents)
+- Real-time analysis progress
+- Findings dashboard with severity grouping
+- Source evidence inspector with page references
+- Demo mode with offline mock data
+
+**Backend** (`/backend`)
+- FastAPI with PDF extraction (PyMuPDF)
+- Gemini 2.0 Flash AI claim extraction
+- Supabase authentication
+- Analysis run management
+- Review workflow with notes
+
+**Validation Engine** (`/research_data`)
+- 8 verification rules (metric mismatches, version conflicts, missing documentation)
+- 6 synthetic test documents (flawed + corrected packages)
+- Ground truth labels for evaluation
+- FDA 2025 AI guidance mapping
+
+### Demo Scenario
+
+**Fictional Case:** AsterBio's AB-101 drug with HepaRisk v2.1 AI model
+
+1. **Upload flawed package** (3 documents with planted defects)
+2. **System flags:**
+   - ⚠️ HIGH: Sensitivity 0.95 vs calculated 0.80 from confusion matrix
+   - ⚠️ HIGH: Model version v2.0 vs v2.1 mismatch
+   - ⚠️ MEDIUM: Missing uncertainty estimates
+   - ⚠️ MEDIUM: No predefined acceptance criteria
+3. **Upload corrected package**
+4. **All findings disappear** ✅
+
+**Key proof points:** Source quotes show exact contradictions, arithmetic verification catches errors, before/after comparison validates detection.
+---
+
+## Tech Stack
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Frontend | React 19 + Vite + Tailwind CSS | Fast UI with drag-and-drop upload |
+| Backend API | FastAPI (Python) | Upload and analysis endpoints |
+| PDF Processing | PyMuPDF | Text extraction with page metadata |
+| AI Extraction | Google Gemini 2.0 Flash | Structured claim extraction |
+| Verification | Python + Pydantic | Deterministic contradiction checks |
+| Auth & Storage | Supabase | User management and run persistence |
+| FDA Guidance | Versioned JSON | 2025 draft AI credibility framework |
+
+---
+
+## Repository Structure
+
+```
+Hackachusetts-TeamGitAndCommit-1/
+├── backend/              # FastAPI server + AI integration
+│   ├── main.py          # API endpoints
+│   ├── agents.py        # Gemini claim extraction
+│   ├── pipeline.py      # Analysis orchestration
+│   ├── extractor.py     # PDF parsing
+│   └── verifier.py      # Deterministic verification (copy from research_data)
+├── frontend/            # React UI
+│   ├── src/
+│   │   ├── Workspace.jsx          # Upload and findings
+│   │   ├── ReviewWorkspace.jsx    # Evidence inspector
+│   │   └── services/              # API clients
+│   └── package.json
+├── research_data/       # Validation framework
+│   ├── backend/verifier.py        # 8 verification rules
+│   ├── samples/                   # Test documents
+│   │   ├── flawed/               # Planted defects
+│   │   └── corrected/            # Fixed version
+│   ├── guidance/                  # FDA mapping
+│   ├── evaluation/                # Scoring scripts
+│   └── research/                  # Regulatory context
+├── PROJECT_DOCUMENTATION.md       # Complete technical docs
+└── VISION_AND_REALITY.md         # Strategic analysis
+```
 Architecture
 Upload PDFs/TXT from React
           |
@@ -53,34 +171,175 @@ Agent responsibilities (small, explicit pipeline)
 - Deterministic verifier: Compare normalized matching metrics across documents, check missing/duplicate references, and flag discrepancies. A numerical mismatch must come from actual extracted values, never from the model's opinion.
 - Report generator: Merge findings, include source traces and recommended human review actions.
 Important: An AI label of “unsupported” means supporting evidence was not found in the uploaded package; it is not proof that evidence does not exist.
-Repository layout
-regulens-ai/
-├── frontend/                 # React/Vite UI
-│   ├── src/
-│   └── .env.example
-├── backend/
-│   ├── main.py               # FastAPI app + /health + /analyze
-│   ├── extractor.py          # PyMuPDF/TXT text extraction
-│   ├── agents.py             # LLM claim extraction / evidence mapping
-│   ├── verifier.py           # Deterministic issue checks
-│   ├── schemas.py            # Pydantic request/response models
-│   ├── guidance/
-│   │   └── fda_ai_draft_2025.json
-│   ├── requirements.txt
-│   └── .env.example
-├── samples/
-│   ├── flawed/               # Fictional test package
-│   └── corrected/            # Same package with errors fixed
-├── tests/
-├── .gitignore
-└── README.md
-The commands below create the basic apps. The extraction/analysis files above are implementation targets, not generated by Vite or FastAPI automatically.
-Getting started (Windows PowerShell)
-Prerequisites
+---
+
+## Getting Started
+
+### Prerequisites
+
 - Git
-- Node.js LTS and npm
-- Python 3.11+ (recommended: 3.11 or 3.12)
-- A Gemini API key if using the AI extraction feature (do not assume free quota)
+- Node.js LTS (18+) and npm
+- Python 3.11 or 3.12
+- Gemini API key (for AI extraction)
+
+### Installation
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/cjiscoderprime/Hackachusetts-TeamGitAndCommit.git
+cd Hackachusetts-TeamGitAndCommit-1
+```
+
+**2. Backend Setup**
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install fastapi uvicorn python-multipart pymupdf pydantic python-dotenv google-genai
+
+# Configure environment
+cp .env.example .env
+# Edit .env and add your GEMINI_API_KEY
+
+# Copy verifier from research_data (if not already done)
+cp ../research_data/backend/verifier.py ./
+
+# Start server
+uvicorn main:app --reload --port 8000
+```
+
+**3. Frontend Setup**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+**4. Access the application**
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- API docs: http://localhost:8000/docs
+
+### Demo Mode (No Backend Required)
+
+The frontend includes a demo mode with mock data:
+```bash
+cd frontend
+npm run dev
+# Toggle "Demo mode" in the UI
+```
+---
+
+## Value Proposition
+
+### For Biotechnology Companies
+
+**Problems We Solve:**
+- Manual evidence review takes weeks
+- Contradictions slip through to FDA submission
+- Resubmission cycles waste 2-6 months **each**
+- Regulatory teams lack bandwidth for thorough pre-checks
+
+**Our Impact:**
+- ⚡ **Speed:** Evidence checks in minutes vs. days
+- ✅ **Quality:** Catch contradictions before FDA does
+- 💰 **Cost:** Prevent million-dollar resubmission delays
+- 🎯 **Confidence:** Source traceability reduces hallucination risk
+
+### Market Context
+
+- 📈 800+ FDA submissions with AI components since 2016
+- 📋 FDA's January 2025 draft creates AI credibility requirements
+- ⏱️ 2-6 month resubmission cycles for major deficiencies
+- 💵 Billions spent annually on regulatory preparation
+
+**Our Position:** We help companies submit cleaner evidence packages the first time.
+
+---
+
+## Limitations & Scope
+
+### What This MVP Does
+
+✅ Evidence integrity verification (contradictions, inconsistencies)  
+✅ Document cross-referencing with source quotes  
+✅ FDA 2025 AI guidance checklist mapping  
+✅ Deterministic rule checking (arithmetic, versions)  
+
+### What This MVP Does NOT Do
+
+❌ Predict FDA approval probability  
+❌ Certify regulatory compliance  
+❌ Replace scientific or regulatory review  
+❌ Process full eCTD submissions  
+❌ Provide regulatory strategy recommendations  
+
+**Clear positioning:** This is a preliminary evidence-integrity audit tool, not an FDA approval predictor or compliance certification system.
+
+---
+
+## Next Steps (Post-Hackathon)
+
+### Phase 1: Production Readiness (Weeks 1-4)
+- Test with real biotech documents
+- Expand format support (Word, Excel)
+- Add more verification rules
+- Improve AI prompt engineering
+
+### Phase 2: Regulatory Expansion (Months 2-3)
+- Map full 21 CFR §312.23 requirements
+- Support IND, NDA, BLA types
+- Add ICH guidelines
+- Build FDA precedent database
+
+### Phase 3: Advanced Features (Months 4-6)
+- Multi-document relationship mapping
+- Timeline consistency checking
+- Protocol deviation detection
+
+### Phase 4: Enterprise Scale (Months 7+)
+- On-premise deployment
+- DMS integration (Veeva, Egnyte)
+- SOC 2 / HIPAA compliance
+
+---
+
+## Team
+
+**GitAndCommit**
+- Tech Lead (CS) — Backend, AI integration, deployment
+- Mech Eng + CS — Frontend, UX design
+- Applied Math — Verification logic, scientific validation, FDA research
+
+---
+
+## Acknowledgments
+
+Built with:
+- Google Gemini 2.0 Flash API
+- FDA January 2025 Draft AI Credibility Guidance (nonbinding)
+- Supabase authentication
+- React, FastAPI, PyMuPDF, Tailwind CSS
+
+Special thanks to Hackachusetts organizers and MIT The Engine community.
+
+---
+
+## Documentation
+
+- 📄 **[PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md)** - Complete technical documentation
+- 🎯 **[VISION_AND_REALITY.md](./VISION_AND_REALITY.md)** - Strategic vision and positioning guidance
+- 🔬 **[Research Context](./research_data/research/RESEARCH_AND_REGULATORY_CONTEXT.md)** - FDA guidance analysis
+
+---
+
+## License & Disclaimer
+
+This is a hackathon proof-of-concept. It does not provide regulatory advice, predict FDA outcomes, or certify compliance. FDA draft guidance referenced is nonbinding. Consult qualified regulatory professionals for actual submissions.
+
+---
+
+*Built at Hackachusetts 2026 | October 24, 2026 | Boston, MA*
 1. Clone and initialize the repository
 git clone https://github.com/YOUR-ORG/regulens-ai.git
 cd regulens-ai
@@ -105,7 +364,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pymupdf
 
-app = FastAPI(title="ReguLens AI")
+app = FastAPI(title="BioLyze AI")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_methods=["*"], allow_headers=["*"])
 
 @app.get("/health")
@@ -231,9 +490,9 @@ Demo script (90 seconds)
 3. Show a mismatch with both documents and page-level quotes.
 4. Show an unsupported-claim warning and a missing-credibility-documentation warning.
 5. Replace flawed package with corrected documents. Re-run. Compare findings.
-6. “ReguLens helps scientists spot evidence gaps earlier. It does not replace regulatory or scientific review.”
+6. “BioLyze helps scientists spot evidence gaps earlier. It does not replace regulatory or scientific review.”
 Sources and cautions
 - FDA draft guidance (January 2025): https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological
 - FDA eCTD background: https://www.fda.gov/drugs/electronic-regulatory-submission-and-review/electronic-common-technical-document-ectd
 - PyMuPDF docs: https://pymupdf.readthedocs.io/en/latest/
-The cited FDA draft guidance describes a risk-based AI credibility framework and nonbinding recommendations. ReguLens checks a selected subset of documentation considerations in this hackathon prototype; it does not check all FDA filing requirements, perform clinical validation, or predict regulatory outcomes.
+The cited FDA draft guidance describes a risk-based AI credibility framework and nonbinding recommendations. BioLyze checks a selected subset of documentation considerations in this hackathon prototype; it does not check all FDA filing requirements, perform clinical validation, or predict regulatory outcomes.
