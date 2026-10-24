@@ -1,0 +1,56 @@
+{
+  "status": "completed",
+  "documents_analyzed": 3,
+  "findings": [
+    {
+      "id": "ISSUE-001",
+      "type": "metric_mismatch",
+      "severity": "high",
+      "title": "Sensitivity differs across the evidence package",
+      "explanation": "The scientific summary reports sensitivity of 0.81, while the validation report reports 0.91 for the same model, cohort, and evaluation.",
+      "sources": [
+        {
+          "filename": "scientific-summary.txt",
+          "page": 1,
+          "quote": "Model RL-01 v1.2 achieved sensitivity of 0.81 on the SYN-240 held-out cohort at a threshold of 0.50."
+        },
+        {
+          "filename": "model-validation.txt",
+          "page": 1,
+          "quote": "Model RL-01 v1.2: sensitivity 0.91 on SYN-240 held-out cohort; threshold 0.50."
+        }
+      ],
+      "guidance_reference": null,
+      "action": "Confirm the validated value, then correct or explain the discrepancy in the scientific summary.",
+      "review_required": true
+    },
+    {
+      "id": "ISSUE-002",
+      "type": "unsupported_claim",
+      "severity": "medium",
+      "title": "External generalization claim needs supporting evidence",
+      "explanation": "The summary describes performance across external hospitals, but this fictional package only includes an internal held-out evaluation.",
+      "sources": [
+        {
+          "filename": "scientific-summary.txt",
+          "page": 1,
+          "quote": "The model generalizes reliably across external hospitals."
+        }
+      ],
+      "guidance_reference": null,
+      "action": "Provide external evaluation evidence or qualify the claim to reflect the internal evaluation.",
+      "review_required": true
+    },
+    {
+      "id": "ISSUE-003",
+      "type": "missing_documentation",
+      "severity": "low",
+      "title": "Model limitations are not documented",
+      "explanation": "No limitations statement was found in this illustrative evidence package.",
+      "sources": [],
+      "guidance_reference": null,
+      "action": "Document known limitations and conditions where the model has not been evaluated.",
+      "review_required": true
+    }
+  ]
+}
