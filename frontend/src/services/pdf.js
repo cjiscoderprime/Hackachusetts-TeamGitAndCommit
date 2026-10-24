@@ -11,8 +11,8 @@ export function makeDemoPdf(lines) {
   return new Blob([pdf], { type: 'application/pdf' });
 }
 export const demoDocumentLines = {
-  'scientific-summary.pdf': ['FICTIONAL SYNTHETIC DOCUMENT - ReguLens demo', 'Scientific summary', 'Model RL-01 v1.2 achieved sensitivity of 0.81 on the SYN-240 held-out cohort at a threshold of 0.50.', 'The model generalizes reliably across external hospitals.'],
-  'model-validation.pdf': ['FICTIONAL SYNTHETIC DOCUMENT - ReguLens demo', 'Model validation', 'Model RL-01 v1.2: sensitivity 0.91 on SYN-240 held-out cohort; threshold 0.50.', 'Evaluation was internal only.'],
-  'results-table.pdf': ['FICTIONAL SYNTHETIC DOCUMENT - ReguLens demo', 'Results table', 'RL-01 v1.2 | SYN-240 | threshold 0.50 | sensitivity 0.91'],
+  'scientific-summary.pdf': ['FICTIONAL SYNTHETIC DOCUMENT - BioLyze demo', 'Scientific summary', 'Model RL-01 v1.2 achieved sensitivity of 0.81 on the SYN-240 held-out cohort at a threshold of 0.50.', 'The model generalizes reliably across external hospitals.'],
+  'model-validation.pdf': ['FICTIONAL SYNTHETIC DOCUMENT - BioLyze demo', 'Model validation', 'Model RL-01 v1.2: sensitivity 0.91 on SYN-240 held-out cohort; threshold 0.50.', 'Evaluation was internal only.'],
+  'results-table.pdf': ['FICTIONAL SYNTHETIC DOCUMENT - BioLyze demo', 'Results table', 'RL-01 v1.2 | SYN-240 | threshold 0.50 | sensitivity 0.91'],
 };
 export function demoFiles() { return Object.entries(demoDocumentLines).map(([name, lines]) => new File([makeDemoPdf(lines)], name, { type: 'application/pdf' })); }

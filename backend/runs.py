@@ -1,4 +1,3 @@
-
 import logging
 import uuid
 from datetime import datetime, timezone
@@ -7,6 +6,7 @@ from fastapi import (
     APIRouter, BackgroundTasks, Depends,
     File, HTTPException, UploadFile
 )
+from google.genai.errors import ServerError
 
 from auth import get_current_user
 from database import get_database
@@ -16,6 +16,8 @@ from pipeline import run_analysis
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+MAX_PDF_BYTES = 5 * 1024 * 1024
 
 
 def now():
@@ -27,11 +29,9 @@ def update_run(run_id, **fields):
         fields
     ).eq("id", run_id).execute()
 
+
 def attach_source_document_ids(findings, uploaded):
-    """
-    Attach document UUIDs to finding sources when
-    filenames identify exactly one uploaded document.
-    """
+    """Associate finding sources with their original PDFs."""
     filename_to_ids = {}
 
     for document_id, filename, _ in uploaded:
@@ -45,17 +45,16 @@ def attach_source_document_ids(findings, uploaded):
             filename = source.get("document")
             matching_ids = filename_to_ids.get(filename, [])
 
-            # Avoid guessing when duplicate filenames exist.
             if len(matching_ids) == 1:
                 source["document_id"] = matching_ids[0]
 
     return findings
 
+
 def process_run(run_id, uploaded):
     db = get_database()
     extracted_pages = []
-    errors = 0
-    successful = 0
+    extraction_errors = 0
 
     try:
         update_run(
@@ -64,25 +63,39 @@ def process_run(run_id, uploaded):
             started_at=now()
         )
 
+        # Step 1: Extract document contents
         for document_id, filename, content in uploaded:
             try:
+                db.table("documents").update({
+                    "status": "extracting"
+                }).eq("id", document_id).execute()
+
                 pages = extract_pdf(filename, content)
 
-                if not any(p["text"].strip() for p in pages):
-                    raise ValueError("No extractable text")
+                if not any(
+                    page.get("text", "").strip()
+                    for page in pages
+                ):
+                    raise ValueError("No extractable text in PDF")
 
                 for page in pages:
                     page["document_id"] = document_id
 
                 extracted_pages.extend(pages)
-                successful += 1
 
                 db.table("documents").update({
-                    "status": "completed"
+                    "status": "completed",
+                    "error_message": None
                 }).eq("id", document_id).execute()
 
             except Exception as exc:
-                errors += 1
+                extraction_errors += 1
+                logger.warning(
+                    "PDF extraction failed for %s: %s",
+                    filename,
+                    exc
+                )
+
                 db.table("documents").update({
                     "status": "failed",
                     "error_message": str(exc)[:300]
@@ -97,11 +110,18 @@ def process_run(run_id, uploaded):
             )
             return
 
+        # Step 2: Run AI analysis
         update_run(run_id, status="analyzing")
 
         results = run_analysis(extracted_pages)
-        findings = attach_source_document_ids(findings, uploaded)
 
+        # Step 3: Retrieve findings and attach document IDs
+        findings = results.get("findings", [])
+        findings = attach_source_document_ids(
+            findings, uploaded
+        )
+
+        # Step 4: Persist scientific findings
         for finding in findings:
             db.table("findings").insert({
                 "run_id": run_id,
@@ -113,36 +133,74 @@ def process_run(run_id, uploaded):
                 "recommendation": finding.get("recommendation")
             }).execute()
 
+        # Step 5: Record actual analysis method
         method = results.get(
             "analysis_method",
             "gemini_extraction_only"
         )
-        fallback = results.get("fallback_used", False)
 
-        # Extraction-only is not a completed evidence audit.
-        verification_complete = method != "gemini_extraction_only"
+        verification_complete = (
+            method != "gemini_extraction_only"
+        )
+
+        fallback_used = results.get("fallback_used", False)
+
+        final_status = (
+            "completed"
+            if extraction_errors == 0 and verification_complete
+            else "partial"
+        )
 
         update_run(
             run_id,
-            status=(
-                "completed"
-                if errors == 0 and verification_complete
-                else "partial"
-            ),
+            status=final_status,
             analysis_method=method,
-            fallback_used=fallback or not verification_complete,
+            fallback_used=(
+                fallback_used or not verification_complete
+            ),
             fallback_reason=(
                 results.get("fallback_reason")
                 or (
                     "Scientific verification not yet integrated"
-                    if not verification_complete else None
+                    if not verification_complete
+                    else None
                 )
             ),
             completed_at=now()
         )
 
+    # Handle Gemini service errors
+    except ServerError as exc:
+        logger.exception(
+            "Gemini service failed for run %s",
+            run_id
+        )
+
+        try:
+            update_run(
+                run_id,
+                status="failed",
+                fallback_used=False,
+                error_message=(
+                    "AI provider temporarily unavailable (503)"
+                    if getattr(exc, "code", None) == 503
+                    else "AI provider request failed"
+                ),
+                completed_at=now()
+            )
+        except Exception:
+            logger.exception(
+                "Could not save Gemini failure for %s",
+                run_id
+            )
+
+    # Handle other processing errors
     except Exception:
-        logger.exception("Run processing failed: %s", run_id)
+        logger.exception(
+            "Run processing failed: %s",
+            run_id
+        )
+
         try:
             update_run(
                 run_id,
@@ -151,7 +209,9 @@ def process_run(run_id, uploaded):
                 completed_at=now()
             )
         except Exception:
-            logger.exception("Could not persist failed status")
+            logger.exception(
+                "Could not persist failed run status"
+            )
 
 
 @router.post("/runs", status_code=202)
@@ -162,27 +222,42 @@ async def create_run(
 ):
     if not 1 <= len(files) <= 5:
         raise HTTPException(
-            400, "Upload between 1 and 5 PDFs"
+            status_code=400,
+            detail="Upload between 1 and 5 PDFs"
         )
 
     db = get_database()
     run_id = str(uuid.uuid4())
     uploaded = []
 
+    # Validate uploads before creating the run
     for file in files:
-        if not file.filename or not file.filename.lower().endswith(".pdf"):
-            raise HTTPException(400, "PDF files only")
+        if (
+            not file.filename
+            or not file.filename.lower().endswith(".pdf")
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="PDF files only"
+            )
 
-        content = await file.read(5 * 1024 * 1024 + 1)
+        content = await file.read(MAX_PDF_BYTES + 1)
 
-        if len(content) > 5 * 1024 * 1024:
-            raise HTTPException(413, "Maximum 5 MB per PDF")
+        if len(content) > MAX_PDF_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail="Maximum 5 MB per PDF"
+            )
 
         if not content.startswith(b"%PDF-"):
-            raise HTTPException(400, "Invalid PDF format")
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid PDF format"
+            )
 
         uploaded.append((file.filename, content))
 
+    # Create persistent analysis record
     db.table("analysis_runs").insert({
         "id": run_id,
         "user_id": user_id,
@@ -191,6 +266,7 @@ async def create_run(
 
     jobs = []
 
+    # Store the PDFs privately
     try:
         for filename, content in uploaded:
             document_id = str(uuid.uuid4())
@@ -208,21 +284,35 @@ async def create_run(
                 "status": "queued"
             }).execute()
 
-            jobs.append((document_id, filename, content))
+            jobs.append((
+                document_id,
+                filename,
+                content
+            ))
 
     except Exception:
+        logger.exception(
+            "Document storage failed for run %s",
+            run_id
+        )
+
         update_run(
             run_id,
             status="failed",
             error_message="Document storage failed",
             completed_at=now()
         )
+
         raise HTTPException(
-            500, "Could not store uploaded documents"
+            status_code=500,
+            detail="Could not store uploaded documents"
         )
 
+    # Execute analysis after returning the run ID
     background_tasks.add_task(
-        process_run, run_id, jobs
+        process_run,
+        run_id,
+        jobs
     )
 
     return {
@@ -233,14 +323,18 @@ async def create_run(
 
 
 @router.get("/runs")
-def list_runs(user_id: str = Depends(get_current_user)):
+def list_runs(
+    user_id: str = Depends(get_current_user)
+):
     result = (
-        get_database().table("analysis_runs")
+        get_database()
+        .table("analysis_runs")
         .select("*")
         .eq("user_id", user_id)
         .order("created_at", desc=True)
         .execute()
     )
+
     return result.data
 
 
@@ -250,6 +344,7 @@ def get_run(
     user_id: str = Depends(get_current_user)
 ):
     db = get_database()
+
     run = (
         db.table("analysis_runs")
         .select("*")
@@ -260,7 +355,10 @@ def get_run(
     )
 
     if not run.data:
-        raise HTTPException(404, "Run not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Run not found"
+        )
 
     documents = (
         db.table("documents")
@@ -282,7 +380,8 @@ def get_run(
         "findings": findings,
         "summary": {
             "documents_analyzed": sum(
-                d["status"] == "completed" for d in documents
+                d["status"] == "completed"
+                for d in documents
             ),
             "issues_found": len(findings)
         }
