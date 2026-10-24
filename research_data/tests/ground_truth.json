@@ -1,0 +1,252 @@
+{
+  "schema_version": "1.0",
+  "fictional": true,
+  "label_authoring": "Hand-labeled defect set in controlled synthetic documents; not independently expert-validated",
+  "cases": {
+    "flawed": {
+      "documents": [
+        "model_card.txt",
+        "scientific_summary.txt",
+        "validation_report.txt"
+      ],
+      "expected_defect_ids": [
+        "F01",
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F06",
+        "F07",
+        "F08"
+      ]
+    },
+    "corrected": {
+      "documents": [
+        "model_card.txt",
+        "scientific_summary.txt",
+        "validation_report.txt"
+      ],
+      "expected_defect_ids": []
+    }
+  },
+  "defects": {
+    "F01": {
+      "defect_id": "F01",
+      "rule_id": "R04",
+      "category": "metric_mismatch",
+      "scientific_meaning": "Reported TEST-01 sensitivity is 0.95 whereas validation gives 0.80 and TP/(TP+FN)=32/40=0.80",
+      "expected_finding": "Reported TEST-01 sensitivity is 0.95 whereas validation gives 0.80 and TP/(TP+FN)=32/40=0.80",
+      "severity": "high",
+      "severity_rationale": "Could misstate observed performance of AI-assisted assay model",
+      "flawed_sources": [
+        {
+          "document": "scientific_summary.txt",
+          "page": 1,
+          "quote": "Claim: Sensitivity on TEST-01 was 0.95."
+        },
+        {
+          "document": "validation_report.txt",
+          "page": 1,
+          "quote": "Reported sensitivity: 0.80 on TEST-01 for HepaRisk v2.1."
+        },
+        {
+          "document": "validation_report.txt",
+          "page": 1,
+          "quote": "Counts: TP=32; FN=8; TN=54; FP=6."
+        }
+      ],
+      "corrected_sources": [
+        {
+          "document": "scientific_summary.txt",
+          "page": 1,
+          "quote": "Claim: Sensitivity on TEST-01 was 0.80."
+        }
+      ],
+      "expected_correction": "Correct summary to 0.80, based on same TEST-01 evaluation."
+    },
+    "F02": {
+      "defect_id": "F02",
+      "rule_id": "R03",
+      "category": "model_version_mismatch",
+      "scientific_meaning": "Intended-use HepaRisk v2.1 in summary vs v2.0 in model card",
+      "expected_finding": "Intended-use HepaRisk v2.1 in summary vs v2.0 in model card",
+      "severity": "high",
+      "severity_rationale": "Inconsistent model identification can break evidence traceability",
+      "flawed_sources": [
+        {
+          "document": "scientific_summary.txt",
+          "page": 1,
+          "quote": "AI model for proposed use: HepaRisk v2.1."
+        },
+        {
+          "document": "model_card.txt",
+          "page": 1,
+          "quote": "Intended regulatory-use model identity: HepaRisk v2.0."
+        }
+      ],
+      "corrected_sources": [
+        {
+          "document": "model_card.txt",
+          "page": 1,
+          "quote": "Intended regulatory-use model identity: HepaRisk v2.1."
+        }
+      ],
+      "expected_correction": "Update intended-use model card to v2.1; historical model versions do not automatically conflict."
+    },
+    "F03": {
+      "defect_id": "F03",
+      "rule_id": "R06",
+      "category": "unsupported_claim",
+      "scientific_meaning": "External validation is claimed despite documentation showing within-Lab-A held-out evaluation",
+      "expected_finding": "External validation is claimed despite documentation showing within-Lab-A held-out evaluation",
+      "severity": "high",
+      "severity_rationale": "External generalizability claim is not supported by the presented study setting",
+      "flawed_sources": [
+        {
+          "document": "scientific_summary.txt",
+          "page": 1,
+          "quote": "Claim: HepaRisk v2.1 was validated at an independent external laboratory."
+        },
+        {
+          "document": "validation_report.txt",
+          "page": 1,
+          "quote": "separate batches. The test dataset is not an external-laboratory dataset."
+        }
+      ],
+      "corrected_sources": [
+        {
+          "document": "scientific_summary.txt",
+          "page": 1,
+          "quote": "Claim: TEST-01 was a held-out, within-Lab-A evaluation, not an"
+        }
+      ],
+      "expected_correction": "Describe held-out within-Lab-A evaluation; do not assert independent external-site validation."
+    },
+    "F04": {
+      "defect_id": "F04",
+      "rule_id": "R09",
+      "category": "missing_documentation",
+      "scientific_meaning": "No prespecified performance acceptance criteria located in uploaded package",
+      "expected_finding": "No prespecified performance acceptance criteria located in uploaded package",
+      "severity": "medium",
+      "severity_rationale": "Adequacy of performance for intended use cannot be reviewed without stated criteria",
+      "flawed_sources": [
+        {
+          "document": "validation_report.txt",
+          "page": 1,
+          "quote": "There is no record here of prespecified performance acceptance criteria."
+        }
+      ],
+      "corrected_sources": [
+        {
+          "document": "validation_report.txt",
+          "page": 1,
+          "quote": "Pre-evaluation protocol: PROT-01 Rev 1, dated 2026-10-03."
+        }
+      ],
+      "expected_correction": "Document protocol and timing, sponsor thresholds; thresholds are not FDA universal limits."
+    },
+    "F05": {
+      "defect_id": "F05",
+      "rule_id": "R10",
+      "category": "missing_documentation",
+      "scientific_meaning": "No confidence intervals/uncertainty for reported performance",
+      "expected_finding": "No confidence intervals/uncertainty for reported performance",
+      "severity": "medium",
+      "severity_rationale": "Point estimates without uncertainty can mislead strength-of-evidence assessment",
+      "flawed_sources": [
+        {
+          "document": "validation_report.txt",
+          "page": 1,
+          "quote": "Confidence intervals and uncertainty estimates are not presented."
+        }
+      ],
+      "corrected_sources": [
+        {
+          "document": "validation_report.txt",
+          "page": 1,
+          "quote": "95% Wilson confidence interval for sensitivity: [0.652, 0.895]."
+        }
+      ],
+      "expected_correction": "Include transparent Wilson binomial uncertainty intervals."
+    },
+    "F06": {
+      "defect_id": "F06",
+      "rule_id": "R11",
+      "category": "missing_documentation",
+      "scientific_meaning": "No model limitations or potential biases described",
+      "expected_finding": "No model limitations or potential biases described",
+      "severity": "medium",
+      "severity_rationale": "Without limits and bias evaluation, applicable populations and generalization are unclear",
+      "flawed_sources": [
+        {
+          "document": "model_card.txt",
+          "page": 1,
+          "quote": "No modeling limitations or potential biases are documented here."
+        }
+      ],
+      "corrected_sources": [
+        {
+          "document": "model_card.txt",
+          "page": 1,
+          "quote": "Limitations: this assessment uses synthetic data from Lab A only;"
+        }
+      ],
+      "expected_correction": "Explain synthetic-data scope, distribution shift and label uncertainty."
+    },
+    "F07": {
+      "defect_id": "F07",
+      "rule_id": "R08",
+      "category": "missing_documentation",
+      "scientific_meaning": "No documented model-risk assessment",
+      "expected_finding": "No documented model-risk assessment",
+      "severity": "medium",
+      "severity_rationale": "Influence on decisions and consequences of errors remain unclear",
+      "flawed_sources": [
+        {
+          "document": "model_card.txt",
+          "page": 1,
+          "quote": "No model risk assessment is documented in this model card."
+        }
+      ],
+      "corrected_sources": [
+        {
+          "document": "model_card.txt",
+          "page": 1,
+          "quote": "Sponsor's preliminary risk rationale: model influence is low because"
+        }
+      ],
+      "expected_correction": "Explain model influence and possible consequences of incorrect output."
+    },
+    "F08": {
+      "defect_id": "F08",
+      "rule_id": "R12",
+      "category": "missing_attachment",
+      "scientific_meaning": "external_site_results.pdf cited but not provided",
+      "expected_finding": "external_site_results.pdf cited but not provided",
+      "severity": "medium",
+      "severity_rationale": "Referenced evidence cannot be traced within reviewed files",
+      "flawed_sources": [
+        {
+          "document": "scientific_summary.txt",
+          "page": 1,
+          "quote": "Evidence reference: external_site_results.pdf, Appendix E."
+        }
+      ],
+      "corrected_sources": [
+        {
+          "document": "scientific_summary.txt",
+          "page": 1,
+          "quote": "Evidence reference: validation_report.txt, Document VAL-001 Rev 2."
+        }
+      ],
+      "expected_correction": "Replace with present validation_report.txt or supply referenced attachment."
+    }
+  },
+  "must_not_flag": [
+    "TRAIN-01 sensitivity 0.99 versus TEST-01 sensitivity 0.80: different datasets and splits",
+    "Same-context TEST-01 reported sensitivity 0.80 versus 32/(32+8) is consistent",
+    "Missing records in 3-file pre-IND package are not automatic FDA regulatory violations"
+  ],
+  "critical_evaluation_instruction": "NEVER pass this ground-truth data to Gemini, document extraction prompts or user-facing analysis endpoint."
+}

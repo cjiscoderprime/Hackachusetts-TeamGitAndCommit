@@ -1,0 +1,12 @@
+{
+  "completed_by_researcher": false,
+  "flawed": {
+    "matched_defect_ids": [],
+    "unmatched_findings_count": 0
+  },
+  "corrected": {
+    "matched_defect_ids": [],
+    "unmatched_findings_count": 0
+  },
+  "notes": "BLANK TEMPLATE: fill with observed ReguLens backend results after uploading both cases. Do not present these placeholders as model performance."
+}
