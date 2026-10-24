@@ -1,4 +1,4 @@
-# ReguLens AI: Automated Regulatory Evidence Review
+# BioLyze AI: Automated Regulatory Evidence Review
 
 **Hackathon:** Hackachusetts 2026 @ MIT The Engine  
 **Category:** Healthcare / Biotech  
@@ -35,7 +35,7 @@ Regulatory teams face significant challenges:
 
 ---
 
-## Our Solution: ReguLens AI
+## Our Solution: BioLyze AI
 
 ### What We Built
 
@@ -61,7 +61,7 @@ Validation reports  structured claims    find contradictions    source quotes
 Model cards         & metrics            & missing evidence     & recommendations
 ```
 
-**Key Innovation:** Unlike generic document review tools, ReguLens:
+**Key Innovation:** Unlike generic document review tools, BioLyze:
 - **Traces every finding to source text** (document, page, quote) to prevent AI hallucinations
 - **Performs domain-specific checks** like confusion matrix arithmetic verification
 - **Maps to FDA's 2025 AI credibility guidance** for regulatory alignment
@@ -424,7 +424,6 @@ DOC_TOPICS = {
 
 ### The Story
 
-**Fictional Company:** AsterBio  
 **Investigational Drug:** AB-101 (small molecule)  
 **AI Model:** HepaRisk v2.1 (binary HepG2 assay predictor)  
 **Intended Use:** Prioritize compounds for additional laboratory experiments
@@ -663,7 +662,7 @@ npm run dev
 
 ## Conclusion
 
-ReguLens AI demonstrates how AI can help biotechnology companies prepare higher-quality regulatory submissions by automatically detecting evidence inconsistencies before FDA review.
+BioLyze AI demonstrates how AI can help biotechnology companies prepare higher-quality regulatory submissions by automatically detecting evidence inconsistencies before FDA review.
 
 In 7 hours, we built a working proof-of-concept that:
 - Processes real PDF documents

@@ -1,4 +1,4 @@
-# ReguLens AI: Strategic Vision & Hackathon Reality Check
+# BioLyze AI: Strategic Vision & Hackathon Reality Check
 
 **Document Date:** October 24, 2026  
 **Purpose:** Align ambitious vision with 7-hour MVP capabilities  
@@ -48,7 +48,7 @@ Biotech regulatory teams cannot efficiently verify:
 
 ---
 
-## What ReguLens MVP *Actually* Does (Reality Check)
+## What BioLyze MVP *Actually* Does (Reality Check)
 
 ### Current Implementation Scope
 
@@ -68,7 +68,7 @@ Biotech regulatory teams cannot efficiently verify:
 
 ### The Honest Positioning Statement (Current MVP)
 
-> **ReguLens is a preliminary evidence-integrity audit tool. It catches internal contradictions and flags documentation gaps in AI-generated scientific evidence before sponsors submit to the FDA. It does NOT predict regulatory outcomes or replace scientific review.**
+> **BioLyze is a preliminary evidence-integrity audit tool. It catches internal contradictions and flags documentation gaps in AI-generated scientific evidence before sponsors submit to the FDA. It does NOT predict regulatory outcomes or replace scientific review.**
 
 ---
 
@@ -104,7 +104,7 @@ Your pitch says:
 > "assess regulatory approval readiness and potential approval probability"
 
 Your README says:
-> "ReguLens provides a preliminary evidence-integrity audit, not an FDA approval prediction"
+> "BioLyze provides a preliminary evidence-integrity audit, not an FDA approval prediction"
 
 **These are contradictory.** Judges will ask: "So which is it?"
 

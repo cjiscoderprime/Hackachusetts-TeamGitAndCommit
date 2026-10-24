@@ -1,4 +1,4 @@
-# ReguLens AI: Automated Regulatory Evidence Review
+# BioLyze AI: Automated Regulatory Evidence Review
 
 **Hackathon:** Hackachusetts 2026 @ MIT The Engine  
 **Category:** Healthcare / Biotech  
@@ -32,7 +32,7 @@ Developing a new biopharmaceutical product takes **10-15 years** and costs **bil
 
 ---
 
-## Our Solution: ReguLens AI
+## Our Solution: BioLyze AI
 
 An **AI-powered pre-submission evidence integrity review system** that helps biotechnology companies:
 
@@ -364,7 +364,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pymupdf
 
-app = FastAPI(title="ReguLens AI")
+app = FastAPI(title="BioLyze AI")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_methods=["*"], allow_headers=["*"])
 
 @app.get("/health")
@@ -490,9 +490,9 @@ Demo script (90 seconds)
 3. Show a mismatch with both documents and page-level quotes.
 4. Show an unsupported-claim warning and a missing-credibility-documentation warning.
 5. Replace flawed package with corrected documents. Re-run. Compare findings.
-6. “ReguLens helps scientists spot evidence gaps earlier. It does not replace regulatory or scientific review.”
+6. “BioLyze helps scientists spot evidence gaps earlier. It does not replace regulatory or scientific review.”
 Sources and cautions
 - FDA draft guidance (January 2025): https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological
 - FDA eCTD background: https://www.fda.gov/drugs/electronic-regulatory-submission-and-review/electronic-common-technical-document-ectd
 - PyMuPDF docs: https://pymupdf.readthedocs.io/en/latest/
-The cited FDA draft guidance describes a risk-based AI credibility framework and nonbinding recommendations. ReguLens checks a selected subset of documentation considerations in this hackathon prototype; it does not check all FDA filing requirements, perform clinical validation, or predict regulatory outcomes.
+The cited FDA draft guidance describes a risk-based AI credibility framework and nonbinding recommendations. BioLyze checks a selected subset of documentation considerations in this hackathon prototype; it does not check all FDA filing requirements, perform clinical validation, or predict regulatory outcomes.

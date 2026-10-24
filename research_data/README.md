@@ -1,4 +1,4 @@
-# ReguLens AI - Research & Scientific Validation Lead Handoff
+# BioLyze AI - Research & Scientific Validation Lead Handoff
 
 **Date:** 2026-10-24  
 **Workstream / intended GitHub branch:** `feature/validation`  

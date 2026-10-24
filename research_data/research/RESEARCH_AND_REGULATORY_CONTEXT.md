@@ -1,4 +1,4 @@
-# ReguLens AI - Scientific Evidence Integrity Research Brief
+# BioLyze AI - Scientific Evidence Integrity Research Brief
 
 **Date:** October 24, 2026  
 **Project:** Hackachusetts 2026 / Healthcare & Biotech  
@@ -11,9 +11,9 @@ Sponsors using AI-produced scientific evidence in drug development need to demon
 
 **Source:** FDA, *Considerations for the Use of Artificial Intelligence to Support Regulatory Decision-Making for Drug and Biological Products*, **January 2025 draft guidance**, Sections II and IV.A, https://www.fda.gov/regulatory-information/search-fda-guidance-documents/considerations-use-artificial-intelligence-support-regulatory-decision-making-drug-and-biological . FDA's page still labels it **Draft Level 1 / not for implementation / contains non-binding recommendations** as checked October 24, 2026. The draft excludes merely operational AI uses that do not affect scientific reliability or regulatory safety/quality decisions.
 
-## 2. Problem categories ReguLens can meaningfully check
+## 2. Problem categories BioLyze can meaningfully check
 
-| Problem | Consequence for reviewers | ReguLens check and source |
+| Problem | Consequence for reviewers | BioLyze check and source |
 |---|---|---|
 | Contradictory performance values | A result cannot be reproduced or trusted at face value | Recompute binary classification rates; compare identical model/version/endpoint/dataset/split/definition only; scientific arithmetic rule (no special FDA mandate) |
 | Model-version discrepancies | Submitted evidence could refer to a different AI artifact | Compare *explicitly proposed-use* model versions; FDA draft IV.A.4.a.iii includes model/version tracking as credibility considerations |
